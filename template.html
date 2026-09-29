@@ -1,0 +1,433 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src __SCRIPT_HASH__; style-src __STYLE_HASH__; img-src data:; font-src data:; base-uri 'none'; form-action 'none'; connect-src https://api.blockchair.com">
+<meta name="referrer" content="no-referrer">
+<meta name="robots" content="noindex, nofollow">
+<meta name="zksend-status" content="on">
+<link rel="icon" type="image/png" sizes="52x52" href="data:image/png;base64,__FAVICON__">
+<link rel="apple-touch-icon" href="data:image/png;base64,__TOUCHICON__">
+<title>zkSEND</title>
+<style>__STYLE__</style>
+</head>
+<body>
+<div id="app">
+<header class="top">
+  <div class="top-inner">
+    <a class="wordmark" href="#"><strong>zkSEND</strong><em>beta</em></a>
+    <span class="divider" aria-hidden="true"></span>
+    <nav id="nav" aria-label="Sections">
+      <a href="#" data-nav="home">home</a>
+      <a href="#guide" data-nav="guide">guide</a>
+      <a href="#faq" data-nav="faq">faq</a>
+      <a href="#terms" data-nav="terms">terms</a>
+      <a href="#" id="nav-tip" data-nav="tip">tip the dev</a>
+    </nav>
+    <a class="act solid top-cta" href="#request"><span class="dot" aria-hidden="true"></span>new request</a>
+    <button class="menu" type="button" id="menu-toggle" aria-expanded="false" aria-controls="nav" aria-label="Menu"><span></span><span></span><span></span></button>
+  </div>
+</header>
+
+<main>
+<!-- ================= create ================= -->
+<section id="create" hidden>
+  <div class="intro">
+    <svg class="logotype" viewBox="0 0 35 7" role="img" aria-label="zkSEND" shape-rendering="crispEdges"><path d="M0 2h.92v.92h-.92zM1 2h.92v.92h-.92zM2 2h.92v.92h-.92zM3 2h.92v.92h-.92zM4 2h.92v.92h-.92zM3 3h.92v.92h-.92zM2 4h.92v.92h-.92zM1 5h.92v.92h-.92zM0 6h.92v.92h-.92zM1 6h.92v.92h-.92zM2 6h.92v.92h-.92zM3 6h.92v.92h-.92zM4 6h.92v.92h-.92zM6 0h.92v.92h-.92zM6 1h.92v.92h-.92zM6 2h.92v.92h-.92zM9 2h.92v.92h-.92zM6 3h.92v.92h-.92zM8 3h.92v.92h-.92zM6 4h.92v.92h-.92zM7 4h.92v.92h-.92zM6 5h.92v.92h-.92zM8 5h.92v.92h-.92zM6 6h.92v.92h-.92zM9 6h.92v.92h-.92zM13 0h.92v.92h-.92zM14 0h.92v.92h-.92zM15 0h.92v.92h-.92zM16 0h.92v.92h-.92zM12 1h.92v.92h-.92zM12 2h.92v.92h-.92zM13 3h.92v.92h-.92zM14 3h.92v.92h-.92zM15 3h.92v.92h-.92zM16 4h.92v.92h-.92zM16 5h.92v.92h-.92zM12 6h.92v.92h-.92zM13 6h.92v.92h-.92zM14 6h.92v.92h-.92zM15 6h.92v.92h-.92zM18 0h.92v.92h-.92zM19 0h.92v.92h-.92zM20 0h.92v.92h-.92zM21 0h.92v.92h-.92zM22 0h.92v.92h-.92zM18 1h.92v.92h-.92zM18 2h.92v.92h-.92zM18 3h.92v.92h-.92zM19 3h.92v.92h-.92zM20 3h.92v.92h-.92zM21 3h.92v.92h-.92zM18 4h.92v.92h-.92zM18 5h.92v.92h-.92zM18 6h.92v.92h-.92zM19 6h.92v.92h-.92zM20 6h.92v.92h-.92zM21 6h.92v.92h-.92zM22 6h.92v.92h-.92zM24 0h.92v.92h-.92zM28 0h.92v.92h-.92zM24 1h.92v.92h-.92zM25 1h.92v.92h-.92zM28 1h.92v.92h-.92zM24 2h.92v.92h-.92zM25 2h.92v.92h-.92zM28 2h.92v.92h-.92zM24 3h.92v.92h-.92zM26 3h.92v.92h-.92zM28 3h.92v.92h-.92zM24 4h.92v.92h-.92zM27 4h.92v.92h-.92zM28 4h.92v.92h-.92zM24 5h.92v.92h-.92zM27 5h.92v.92h-.92zM28 5h.92v.92h-.92zM24 6h.92v.92h-.92zM28 6h.92v.92h-.92zM30 0h.92v.92h-.92zM31 0h.92v.92h-.92zM32 0h.92v.92h-.92zM33 0h.92v.92h-.92zM30 1h.92v.92h-.92zM34 1h.92v.92h-.92zM30 2h.92v.92h-.92zM34 2h.92v.92h-.92zM30 3h.92v.92h-.92zM34 3h.92v.92h-.92zM30 4h.92v.92h-.92zM34 4h.92v.92h-.92zM30 5h.92v.92h-.92zM34 5h.92v.92h-.92zM30 6h.92v.92h-.92zM31 6h.92v.92h-.92zM32 6h.92v.92h-.92zM33 6h.92v.92h-.92z"/></svg>
+    <p class="lede">Shielded payment links for Zcash. Get paid, take tips, or pay a whole team in one go.</p>
+    <p class="sub">No database. No stored data. zkSEND never touches your funds. Everything lives in the link, and nowhere else.</p>
+  </div>
+
+  <div class="box" id="modes">
+    <div class="tabs" role="tablist" aria-label="What do you want to do?">
+      <button type="button" role="tab" id="tab-request" aria-controls="form-request" aria-selected="true"><span aria-hidden="true">▤</span>request</button>
+      <button type="button" role="tab" id="tab-tip" aria-controls="form-tip" aria-selected="false" tabindex="-1"><span aria-hidden="true">♥</span>tip jar</button>
+      <button type="button" role="tab" id="tab-batch" aria-controls="form-batch" aria-selected="false" tabindex="-1"><span aria-hidden="true">≡</span>pay many</button>
+    </div>
+
+    <!-- request / invoice -->
+    <form id="form-request" role="tabpanel" aria-labelledby="tab-request" novalidate>
+      <p class="mode-help">One payment for one thing: an invoice, a sale, a ticket, a split.</p>
+      <label for="r-addr">your shielded address</label>
+      <textarea id="r-addr" rows="3" spellcheck="false" autocomplete="off" autocapitalize="off" placeholder="u1… or zs1…"></textarea>
+      <p class="hint">Use a fresh address from your wallet for each request, so two links can't be tied together.</p>
+      <div class="two">
+        <div><label for="r-amount">amount <span class="opt">ZEC, optional</span></label>
+          <input id="r-amount" inputmode="decimal" autocomplete="off" placeholder="0.05"></div>
+        <div><label for="r-label">for <span class="opt">optional</span></label>
+          <input id="r-label" autocomplete="off" maxlength="80" placeholder="privacy"></div>
+      </div>
+      <label for="r-expiry">link expires <span class="opt">the pay page stops working after this</span></label>
+      <select id="r-expiry">
+        <option value="1">in 1 hour</option>
+        <option value="6">in 6 hours</option>
+        <option value="24" selected>in 24 hours</option>
+        <option value="72">in 3 days</option>
+        <option value="168">in 7 days</option>
+        <option value="720">in 30 days</option>
+        <option value="0">never</option>
+      </select>
+      <p class="label">memo the payer sends</p>
+      <p class="memo-row"><code id="r-memo" class="memo"></code><button type="button" class="act" id="r-regen"><span aria-hidden="true">↻</span>new memo</button></p>
+      <p class="error" id="r-error" role="alert"></p>
+      <div class="row">
+        <button class="act solid" type="submit">create link<span aria-hidden="true">→</span></button>
+        <button class="act" type="button" id="r-clear"><span aria-hidden="true">▿</span>clear</button>
+      </div>
+    <div id="r-result" class="result" hidden>
+      <label for="r-link">your payment link</label>
+      <textarea id="r-link" rows="3" readonly spellcheck="false"></textarea>
+      <p class="warn" id="r-testnet" hidden>Testnet address. Only testnet wallets can pay it.</p>
+      <div class="row">
+        <button class="act solid" type="button" data-copy-from="r-link"><span aria-hidden="true">□</span>copy link</button>
+        <a class="act" id="r-open" target="_blank" rel="noopener noreferrer"><span aria-hidden="true">▣</span>preview</a>
+      </div>
+      <p class="hint">Keep the memo. It's how you'll spot this payment in your wallet history.</p>
+      <details class="embed">
+        <summary>put a pay button on your site or post</summary>
+        <label for="r-html">HTML, for a website or shop checkout</label>
+        <textarea id="r-html" rows="3" readonly spellcheck="false"></textarea>
+        <button class="act" type="button" data-copy-from="r-html"><span aria-hidden="true">□</span>copy HTML</button>
+        <label for="r-md">Markdown, for Discord, GitHub or forums</label>
+        <textarea id="r-md" rows="2" readonly spellcheck="false"></textarea>
+        <button class="act" type="button" data-copy-from="r-md"><span aria-hidden="true">□</span>copy Markdown</button>
+      </details>
+    </div>
+    </form>
+
+    <!-- tip jar -->
+    <form id="form-tip" role="tabpanel" aria-labelledby="tab-tip" novalidate hidden>
+      <p class="mode-help">One link you can pin anywhere. Tippers pick an amount and can add a private message.</p>
+      <label for="t-addr">your shielded address</label>
+      <textarea id="t-addr" rows="3" spellcheck="false" autocomplete="off" autocapitalize="off" placeholder="u1… or zs1…"></textarea>
+      <p class="hint">A tip jar reuses one address on purpose. Use a wallet account just for tips, not your personal one.</p>
+      <p class="hint">Tip links never expire. If you switch to a new address, create a new tip link and update it everywhere you posted the old one: your site, bio and socials.</p>
+      <div class="two">
+        <div><label for="t-label">your name <span class="opt">optional</span></label>
+          <input id="t-label" autocomplete="off" maxlength="80" placeholder="your name or project"></div>
+        <div><label for="t-presets">suggested amounts <span class="opt">ZEC</span></label>
+          <input id="t-presets" autocomplete="off" inputmode="decimal" value="0.01 0.05 0.1"></div>
+      </div>
+      <p class="error" id="t-error" role="alert"></p>
+      <div class="row">
+        <button class="act solid" type="submit">create tip link<span aria-hidden="true">→</span></button>
+        <button class="act" type="button" id="t-clear"><span aria-hidden="true">▿</span>clear</button>
+      </div>
+    <div id="t-result" class="result" hidden>
+      <label for="t-link">your tip link</label>
+      <textarea id="t-link" rows="3" readonly spellcheck="false"></textarea>
+      <p class="warn" id="t-testnet" hidden>Testnet address. Only testnet wallets can pay it.</p>
+      <div class="row">
+        <button class="act solid" type="button" data-copy-from="t-link"><span aria-hidden="true">□</span>copy link</button>
+        <a class="act" id="t-open" target="_blank" rel="noopener noreferrer"><span aria-hidden="true">▣</span>preview</a>
+      </div>
+      <details class="embed">
+        <summary>put a pay button on your site or post</summary>
+        <label for="t-html">HTML, for a website or shop checkout</label>
+        <textarea id="t-html" rows="3" readonly spellcheck="false"></textarea>
+        <button class="act" type="button" data-copy-from="t-html"><span aria-hidden="true">□</span>copy HTML</button>
+        <label for="t-md">Markdown, for Discord, GitHub or forums</label>
+        <textarea id="t-md" rows="2" readonly spellcheck="false"></textarea>
+        <button class="act" type="button" data-copy-from="t-md"><span aria-hidden="true">□</span>copy Markdown</button>
+      </details>
+    </div>
+    </form>
+
+    <!-- pay many -->
+    <form id="form-batch" role="tabpanel" aria-labelledby="tab-batch" novalidate hidden>
+      <p class="mode-help">Payroll, bounties, splitting a pot: pay everyone in one transaction.</p>
+      <label for="b-list">who gets paid <span class="opt">one per line: address, amount, memo</span></label>
+      <textarea id="b-list" rows="6" spellcheck="false" autocomplete="off" autocapitalize="off" placeholder="u1abc…, 1.5, October design work&#10;u1def…, 0.75, October support"></textarea>
+      <p class="hint">Paste straight from a spreadsheet: columns address, amount, memo. The memo is optional.</p>
+      <div class="two">
+        <div><label for="b-label">name <span class="opt">optional</span></label>
+          <input id="b-label" autocomplete="off" maxlength="80" placeholder="October payroll"></div>
+        <div><label for="b-memo">memo for everyone <span class="opt">if a line has none</span></label>
+          <input id="b-memo" autocomplete="off" maxlength="120" placeholder="paid via zkSEND"></div>
+      </div>
+      <p class="summary" id="b-summary" aria-live="polite"></p>
+      <p class="error" id="b-error" role="alert"></p>
+      <ul class="errors" id="b-errors"></ul>
+      <div class="row">
+        <button class="act solid" type="submit">create pay list<span aria-hidden="true">→</span></button>
+        <button class="act" type="button" id="b-clear"><span aria-hidden="true">▿</span>clear</button>
+      </div>
+    <div id="b-result" class="result" hidden>
+      <label for="b-link">your pay list link</label>
+      <textarea id="b-link" rows="3" readonly spellcheck="false"></textarea>
+      <p class="warn" id="b-testnet" hidden>Testnet address. Only testnet wallets can pay it.</p>
+      <div class="row">
+        <button class="act solid" type="button" data-copy-from="b-link"><span aria-hidden="true">□</span>copy link</button>
+        <a class="act" id="b-open" target="_blank" rel="noopener noreferrer"><span aria-hidden="true">▣</span>preview</a>
+      </div>
+      <p class="hint">Open it yourself to pay, or send it to whoever holds the funds. Anyone with this link can see the addresses and amounts, so share it privately.</p>
+      <details class="embed">
+        <summary>put a pay button on your site or post</summary>
+        <label for="b-html">HTML, for a website or shop checkout</label>
+        <textarea id="b-html" rows="3" readonly spellcheck="false"></textarea>
+        <button class="act" type="button" data-copy-from="b-html"><span aria-hidden="true">□</span>copy HTML</button>
+        <label for="b-md">Markdown, for Discord, GitHub or forums</label>
+        <textarea id="b-md" rows="2" readonly spellcheck="false"></textarea>
+        <button class="act" type="button" data-copy-from="b-md"><span aria-hidden="true">□</span>copy Markdown</button>
+      </details>
+    </div>
+    </form>
+  </div>
+
+  <section id="guide" class="block">
+    <h2>Guide</h2>
+    <ol>
+      <li><strong>Pick what you need.</strong> A <em>request</em> for one payment, a <em>tip jar</em> link you can pin anywhere, or <em>pay many</em> to pay a list of people at once.</li>
+      <li><strong>Paste a shielded address.</strong> zkSEND checks it for typos. Transparent addresses are refused.</li>
+      <li><strong>Share the link.</strong> Everything after the # stays in the browser. The server only ever delivers this page.</li>
+      <li><strong>The payer taps "open in wallet" or scans the QR code.</strong> Amount and memo are filled in for them.</li>
+      <li><strong>Tap "I sent it" and watch it complete.</strong> Paste the transaction ID and the progress bar follows it from searching, through 10 confirmations, to complete. Share the tracking link so the other person sees it too.</li>
+    </ol>
+  </section>
+
+  <section id="faq" class="block">
+    <h2>FAQ</h2>
+    <details><summary>Does zkSEND store any data?</summary><p>No. There is no database and no account system. zkSEND saves nothing about you or your payments: no addresses, amounts, memos, messages or transaction IDs. Every request, tip jar and tracking link carries its own details inside the link, after the #, and browsers never send that part to our server.</p></details>
+    <details><summary>Can the developers see my payments?</summary><p>No. The developers have no access to any payment, address, amount, memo or transaction, because none of it ever reaches zkSEND's server. The one thing that exists, as with any website, is the hosting provider's basic connection log: when the page was loaded, from which IP address, with which browser. It never contains payment details. The developer can see that log in the hosting dashboard; use Tor if you'd rather not share your IP.</p></details>
+    <details><summary>Does zkSEND ever touch my funds?</summary><p>Never. Payments go straight from the payer's wallet to the recipient's wallet. zkSEND only builds the payment link. It never holds keys or funds, can't move or freeze money, and takes no fees.</p></details>
+    <details><summary>How does the progress bar work?</summary><p>After paying, tap "I sent it" and paste the transaction ID from your wallet's history. The page then goes from searching the network, to confirming (1 to 10), to complete. The progress lives only in your browser tab and the link. Send the tracking link to the other person, and they can watch the same progress.</p></details>
+    <details><summary>Why do I have to paste a transaction ID?</summary><p>Shielded payments hide who paid whom, how much, and the memo, from everyone except the recipient's wallet. That includes zkSEND. Sites that find your payment automatically can do it because they are the recipient and hold their own viewing key. zkSEND isn't, and doesn't want your keys, so it follows the one thing that's public: the transaction ID.</p></details>
+    <details><summary>What happens to tracking data when a payment completes?</summary><p>There's nothing on our side to delete, because nothing was ever stored. Tracking stops at 10 confirmations. "Clear this page" removes the payment from your address bar, and an open tab clears itself 4 hours after completion. Copies of the link you sent someone stay in that chat until you delete the message.</p></details>
+    <details><summary>What if a payment doesn't go through?</summary><p>If a payment isn't confirmed within about an hour, it expires and the funds become spendable in the payer's wallet again. The progress bar will say it can't find it. The only risk is paying twice while the first one is still pending, so wait before retrying.</p></details>
+    <details><summary>Which wallets work with zkSEND?</summary><p>Any Zcash wallet that can scan a QR code or send to a shielded address with a memo, which covers all the major ones. "Open in wallet app" works with wallets that register Zcash payment links on your device, including current versions of Zodl on iPhone and Android. If nothing opens, update your wallet or scan the QR code from inside it. On a computer with the Noir browser wallet installed, a "pay with Noir" button appears, and the progress bar starts by itself after you pay.</p></details>
+    <details><summary>Does "pay many" really send one transaction?</summary><p>Yes, if your wallet supports multi-payment links (ZIP 321). If yours opens only the first payment, use "pay this one" for each person instead; the list lets you tick them off as you go.</p></details>
+    <details><summary>Can I use this for checkout on my shop?</summary><p>Yes. Create a request, open "put a pay button on your site", and paste the HTML. Shops can also build links themselves: <code>#u=ADDRESS&amp;a=AMOUNT&amp;m=ORDER-ID&amp;n=LABEL&amp;x=EXPIRY</code>, where <code>x</code> is an optional expiry time in Unix seconds. Use a fresh address per order, and match payments by the order ID in the memo.</p></details>
+    <details><summary>Who made zkSEND?</summary><p>zkSEND was created by <a href="https://x.com/404snark_" target="_blank" rel="noopener noreferrer">404snark_</a>, for the Zcash community. It's free, and if it's useful to you there's an optional "tip the dev" button at the bottom of every page.</p></details>
+    <details><summary>Is there a fee?</summary><p>No. zkSEND takes nothing from any payment. If it's useful to you, there's an optional "tip the dev" button at the bottom of every page.</p></details>
+    <details><summary>Why did I get a "checking your browser" page?</summary><p>Too many requests arrived from your network, or the site is under load. Your browser solves a small puzzle to prove it isn't a script. No third-party captcha is involved. The pass it earns is tied to your network for an hour and isn't recorded anywhere.</p></details>
+    <details><summary>Who can make a link on this site?</summary><p>Anyone, and zkSEND can't vouch for who made one. Before paying, check with the person asking that the address starts and ends the way the pay page shows.</p></details>
+    <details><summary>What still links me to a payment?</summary><p>The app you paste a link into can read it. So can your browser history and anything that syncs it. Reusing one address, your writing style, and paying from a wallet you also use personally can also connect the dots. Tor or a separate browser profile helps with the IP address.</p></details>
+  </section>
+
+  <section id="terms" class="block">
+    <h2>Terms</h2>
+    <p>zkSEND builds payment links in your browser. It never holds keys or funds, and it isn't a party, escrow or broker to any payment.</p>
+    <p>A confirmed Zcash transaction can't be reversed. Check addresses and amounts before you send.</p>
+    <p>The page is provided as-is, with no uptime promise. If it goes offline, nothing you own is affected.</p>
+  </section>
+</section>
+
+<!-- ================= pay: one request, and its tracking view ================= -->
+<section id="pay" hidden data-mode="request">
+  <p class="kicker" id="p-kicker">payment request</p>
+  <h1 class="title" id="p-title"></h1>
+  <p class="amount"><span id="p-amount"></span><span class="unit" id="p-unit">ZEC</span></p>
+  <p class="expires" id="p-expires" hidden></p>
+  <p class="warn" id="p-testnet" hidden>Testnet address. Don't pay from a mainnet wallet.</p>
+
+  <div class="receipt-block">
+    <div class="tracker box" id="rc-tracker" aria-labelledby="rc-state">
+    <ol class="steps" id="rc-steps" aria-label="payment progress"></ol>
+    <div class="meter" id="rc-meter" role="progressbar" aria-label="confirmations" aria-valuemin="0" aria-valuemax="10" aria-valuenow="0"><div class="meter-fill" id="rc-fill"></div></div>
+    <p class="track-state" id="rc-state" data-state="idle" aria-live="polite">ready to track</p>
+    <p class="track-detail" id="rc-detail" aria-live="polite"></p>
+    <div class="row">
+      <button class="act solid" type="button" id="rc-go"><span aria-hidden="true">↻</span>start tracking</button>
+      <button class="act" type="button" id="rc-clear"><span aria-hidden="true">▿</span>clear this page</button>
+    </div>
+    <div class="share" id="rc-share">
+      <p class="label">send this page to the other person</p>
+      <p class="hint">It's the same link you're on. Only people you send it to can open it.</p>
+      <button class="act" type="button" id="rc-share-copy"><span aria-hidden="true">□</span>copy tracking link</button>
+    </div>
+    <dl class="fields">
+      <div><dt>transaction id</dt><dd><code class="long" id="rc-tx"></code><button class="act" type="button" data-copy-from="rc-tx"><span aria-hidden="true">□</span>copy</button></dd></div>
+      <div id="rc-memo-row"><dt>memo to look for</dt><dd><code class="memo" id="rc-memo"></code></dd></div>
+    </dl>
+    <p class="hint">Tracking shows the transaction is on the chain and how many confirmations it has. It can't show who it paid or how much; the recipient's wallet confirms that with the memo.</p>
+    <details class="track-privacy"><summary>who can see this?</summary><p>Only people who have this link. zkSEND's server never receives it and stores nothing. While tracking, your browser asks Blockchair, a public block explorer, about this one transaction ID. Blockchair sees your IP address and the ID, but a shielded transaction ID doesn't reveal amounts, addresses or memos. Use Tor if you don't want Blockchair to see your IP.</p></details>
+  </div>
+  </div>
+
+  <div class="pay-block">
+    <ol class="steps" id="p-steps" aria-label="payment progress"></ol>
+    <div class="pay-grid box">
+      <div class="qr" id="p-qr"></div>
+      <div class="pay-side">
+        <a class="act solid wide" id="p-open"><span aria-hidden="true">▣</span>open in wallet app</a>
+        <div class="noir" id="p-noir">
+          <div id="p-noir-amt-row" hidden><label for="p-noir-amt">amount to send <span class="opt">ZEC</span></label>
+            <input id="p-noir-amt" inputmode="decimal" autocomplete="off" placeholder="0.05"></div>
+          <button class="act solid wide" type="button" id="p-noir-btn"><span aria-hidden="true">◆</span>pay with Noir</button>
+          <p class="error" id="p-noir-error" role="alert"></p>
+          <p class="hint noir-missing" id="p-noir-missing" hidden role="status">Noir isn't installed in this browser. It's a Chrome extension wallet for computers: get it at <a href="https://zknoir.com" target="_blank" rel="noopener noreferrer">zknoir.com</a>, then reload this page. On a phone, use your wallet app and scan the QR code instead.</p>
+        </div>
+        <p class="hint wallet-hint">On your phone, "open in wallet app" opens Zodl and other wallets that support payment links. From another screen, scan the QR code with your wallet.</p>
+        <div class="wallet-help" id="p-help" hidden role="status">
+          <p><strong>Nothing opened?</strong> Your wallet may not support payment links on this device, or it needs an update.</p>
+          <p>Scan the QR code from inside your wallet, or copy the address, amount and memo into it by hand.</p>
+        </div>
+        <dl class="fields">
+          <div id="p-amt-row"><dt>amount</dt><dd><code id="p-amt-copy"></code><button class="act" type="button" data-copy-from="p-amt-copy"><span aria-hidden="true">□</span>copy</button></dd></div>
+          <div><dt>memo, include it exactly</dt><dd><code class="memo" id="p-memo"></code><button class="act" type="button" data-copy-from="p-memo"><span aria-hidden="true">□</span>copy</button></dd></div>
+          <div><dt>address</dt><dd><code class="long" id="p-addr"></code><button class="act" type="button" data-copy-from="p-addr"><span aria-hidden="true">□</span>copy</button></dd></div>
+        </dl>
+      </div>
+    </div>
+    <div class="box sent-box">
+    <h2>sent the funds?</h2>
+    <p class="hint">Open the payment in your wallet's history and copy its transaction ID. zkSEND follows that one ID on the public network. It's the only way to track a shielded payment without seeing inside it.</p>
+    <form id="p-sent-form" novalidate>
+      <label for="p-sent-in">transaction id</label>
+      <input id="p-sent-in" spellcheck="false" autocomplete="off" autocapitalize="off" placeholder="64 characters, 0-9 a-f">
+      <p class="error" id="p-sent-error" role="alert"></p>
+      <button class="act solid wide" type="submit"><span aria-hidden="true">✓</span>I sent the funds, track it</button>
+    </form>
+  </div>
+    <p class="note-stuck"><strong>Payment stuck on pending?</strong> Wait about an hour before paying again. A payment that never confirms expires, and the funds become spendable in your wallet again on their own. Paying again sooner can mean paying twice.</p>
+    <p class="check">Anyone can make a zkSEND link. Before paying, confirm the address starts and ends with <code id="p-fp"></code> with the person asking.</p>
+    <details class="uri"><summary>payment URI</summary><p><code class="long" id="p-uri"></code> <button class="act" type="button" data-copy-from="p-uri"><span aria-hidden="true">□</span>copy</button></p></details>
+  </div>
+</section>
+
+<!-- ================= pay: tip jar ================= -->
+<section id="tip" hidden>
+  <p class="kicker">tip jar</p>
+  <h1 class="title" id="tp-title"></h1>
+  <p class="official" id="tp-official" hidden><span aria-hidden="true">✓</span> the official zkSEND tip jar</p>
+  <p class="amount"><span id="tp-amount"></span><span class="unit" id="tp-unit">ZEC</span></p>
+  <p class="warn" id="tp-testnet" hidden>Testnet address. Don't pay from a mainnet wallet.</p>
+  <ol class="steps" id="tp-steps" aria-label="payment progress"></ol>
+  <div class="presets" id="tp-presets" role="group" aria-label="Choose an amount"></div>
+  <div class="two tip-inputs">
+    <div><label for="tp-custom"><span id="tp-custom-label">other amount</span> <span class="opt">ZEC</span></label>
+      <input id="tp-custom" inputmode="decimal" autocomplete="off" placeholder="0.25"></div>
+    <div><label for="tp-msg">message <span class="opt">optional, sent privately in the memo</span></label>
+      <input id="tp-msg" autocomplete="off" maxlength="200" placeholder="thanks for the guide"></div>
+  </div>
+  <p class="error" id="tp-error" role="alert"></p>
+  <div class="pay-grid box">
+    <div class="qr" id="tp-qr"></div>
+    <div class="pay-side">
+      <a class="act solid wide" id="tp-open"><span aria-hidden="true">▣</span>open in wallet app</a>
+        <div class="noir" id="tp-noir">
+          <div id="tp-noir-amt-row" hidden><label for="tp-noir-amt">amount to send <span class="opt">ZEC</span></label>
+            <input id="tp-noir-amt" inputmode="decimal" autocomplete="off" placeholder="0.05"></div>
+          <button class="act solid wide" type="button" id="tp-noir-btn"><span aria-hidden="true">◆</span>pay with Noir</button>
+          <p class="error" id="tp-noir-error" role="alert"></p>
+          <p class="hint noir-missing" id="tp-noir-missing" hidden role="status">Noir isn't installed in this browser. It's a Chrome extension wallet for computers: get it at <a href="https://zknoir.com" target="_blank" rel="noopener noreferrer">zknoir.com</a>, then reload this page. On a phone, use your wallet app and scan the QR code instead.</p>
+        </div>
+        <p class="hint wallet-hint">On your phone, "open in wallet app" opens Zodl and other wallets that support payment links. From another screen, scan the QR code with your wallet.</p>
+        <div class="wallet-help" id="tp-help" hidden role="status">
+          <p><strong>Nothing opened?</strong> Your wallet may not support payment links on this device, or it needs an update.</p>
+          <p>Scan the QR code from inside your wallet, or copy the address, amount and memo into it by hand.</p>
+        </div>
+      <dl class="fields">
+        <div><dt>address</dt><dd><code class="long" id="tp-addr"></code><button class="act" type="button" data-copy-from="tp-addr"><span aria-hidden="true">□</span>copy</button></dd></div>
+      </dl>
+    </div>
+  </div>
+  <div class="box sent-box">
+    <h2>sent the tip?</h2>
+    <p class="hint">Open the payment in your wallet's history and copy its transaction ID. zkSEND follows that one ID on the public network. It's the only way to track a shielded payment without seeing inside it.</p>
+    <form id="tp-sent-form" novalidate>
+      <label for="tp-sent-in">transaction id</label>
+      <input id="tp-sent-in" spellcheck="false" autocomplete="off" autocapitalize="off" placeholder="64 characters, 0-9 a-f">
+      <p class="error" id="tp-sent-error" role="alert"></p>
+      <button class="act solid wide" type="submit"><span aria-hidden="true">✓</span>I sent the tip, track it</button>
+    </form>
+  </div>
+  <p class="note-stuck"><strong>Payment stuck on pending?</strong> Wait about an hour before trying again. A payment that never confirms expires and returns to your wallet on its own.</p>
+  <p class="check">Anyone can make a zkSEND link. If you're unsure this tip jar is real, check that the address starts and ends with <code id="tp-fp"></code> where its owner posted it.</p>
+  <details class="uri"><summary>payment URI</summary><p><code class="long" id="tp-uri"></code> <button class="act" type="button" data-copy-from="tp-uri"><span aria-hidden="true">□</span>copy</button></p></details>
+</section>
+
+<!-- ================= pay: many, and its tracking view ================= -->
+<section id="batch" hidden data-mode="request">
+  <p class="kicker" id="bp-kicker">pay list</p>
+  <h1 class="title" id="bp-title"></h1>
+  <p class="amount"><span id="bp-total"></span><span class="unit">ZEC total</span></p>
+  <p class="sub" id="bp-count"></p>
+  <p class="warn" id="bp-testnet" hidden>Testnet addresses. Don't pay from a mainnet wallet.</p>
+
+  <div class="receipt-block">
+    <div class="tracker box" id="bt-tracker" aria-labelledby="bt-state">
+    <ol class="steps" id="bt-steps" aria-label="payment progress"></ol>
+    <div class="meter" id="bt-meter" role="progressbar" aria-label="confirmations" aria-valuemin="0" aria-valuemax="10" aria-valuenow="0"><div class="meter-fill" id="bt-fill"></div></div>
+    <p class="track-state" id="bt-state" data-state="idle" aria-live="polite">ready to track</p>
+    <p class="track-detail" id="bt-detail" aria-live="polite"></p>
+    <div class="row">
+      <button class="act solid" type="button" id="bt-go"><span aria-hidden="true">↻</span>start tracking</button>
+      <button class="act" type="button" id="bt-clear"><span aria-hidden="true">▿</span>clear this page</button>
+    </div>
+    <div class="share">
+      <p class="label">give each person their own tracking link</p>
+      <p class="hint">Each link shows only that person's payment. Don't share this page; it has the whole list.</p>
+      <ol class="track-links" id="bt-links"></ol>
+    </div>
+    <dl class="fields">
+      <div><dt>transaction id</dt><dd><code class="long" id="bt-tx"></code><button class="act" type="button" data-copy-from="bt-tx"><span aria-hidden="true">□</span>copy</button></dd></div>
+      <div id="bt-memo-row"><dt>memo to look for</dt><dd><code class="memo" id="bt-memo"></code></dd></div>
+    </dl>
+    <p class="hint">Tracking shows the transaction is on the chain and how many confirmations it has. It can't show who it paid or how much; the recipient's wallet confirms that with the memo.</p>
+    <details class="track-privacy"><summary>who can see this?</summary><p>Only people who have this link. zkSEND's server never receives it and stores nothing. While tracking, your browser asks Blockchair, a public block explorer, about this one transaction ID. Blockchair sees your IP address and the ID, but a shielded transaction ID doesn't reveal amounts, addresses or memos. Use Tor if you don't want Blockchair to see your IP.</p></details>
+  </div>
+  </div>
+
+  <div class="pay-block">
+    <ol class="steps" id="bp-steps" aria-label="payment progress"></ol>
+    <div class="pay-grid box">
+      <div class="qr" id="bp-qr"></div>
+      <div class="pay-side">
+        <a class="act solid wide" id="bp-open"><span aria-hidden="true">▣</span>pay everyone in one go</a>
+        <p class="hint">Opens one transaction with every payment in your wallet. If your wallet shows only the first person, pay them one at a time below.</p>
+      </div>
+    </div>
+    <div class="box sent-box">
+    <h2>sent everyone?</h2>
+    <p class="hint">Open the payment in your wallet's history and copy its transaction ID. zkSEND follows that one ID on the public network. It's the only way to track a shielded payment without seeing inside it.</p>
+    <form id="bp-sent-form" novalidate>
+      <label for="bp-sent-in">transaction id</label>
+      <input id="bp-sent-in" spellcheck="false" autocomplete="off" autocapitalize="off" placeholder="64 characters, 0-9 a-f">
+      <p class="error" id="bp-sent-error" role="alert"></p>
+      <button class="act solid wide" type="submit"><span aria-hidden="true">✓</span>I sent everyone, track it</button>
+    </form>
+  </div>
+    <p class="note-stuck"><strong>Payment stuck on pending?</strong> Wait about an hour before paying again. An unconfirmed payment expires and the funds return to your wallet on their own.</p>
+    <p class="check">Anyone can make a zkSEND link. Only pay a list you got directly from someone you trust, and check the total.</p>
+    <h2 class="list-h">one at a time</h2>
+    <ol class="pay-rows" id="bp-rows"></ol>
+    <details class="uri"><summary>payment URI</summary><p><code class="long" id="bp-uri"></code> <button class="act" type="button" data-copy-from="bp-uri"><span aria-hidden="true">□</span>copy</button></p></details>
+  </div>
+</section>
+
+<section id="expired" hidden>
+  <div class="box">
+    <h1>this request expired</h1>
+    <p id="expired-msg"></p>
+    <p class="hint">Ask the person who sent it for a new link. Don't pay a request that has expired; they may no longer be watching for it.</p>
+    <a class="act" href="#"><span aria-hidden="true">→</span>go home</a>
+  </div>
+</section>
+
+<section id="bad" hidden>
+  <div class="box">
+    <h1>this link is broken</h1>
+    <p id="bad-msg"></p>
+    <p class="hint">Ask whoever sent it for a fresh link. Don't pay from a damaged one.</p>
+    <a class="act" href="#"><span aria-hidden="true">→</span>make your own link</a>
+  </div>
+</section>
+</main>
+
+<aside class="devtip" id="devtip" aria-label="Support zkSEND">
+  <p><strong>zkSEND is free.</strong> No fees, no accounts, no stored data, and it never touches your funds. If it helped you, you can tip the dev in shielded ZEC.</p>
+  <a class="act solid" id="devtip-link"><span aria-hidden="true">♥</span>tip the dev</a>
+</aside>
+<footer class="foot">
+  <span>zkSEND</span>
+  <a href="#terms">terms</a>
+  <span>no accounts. no analytics. no fees. no logs kept by this app.</span>
+  <a class="credit" href="https://x.com/404snark_" target="_blank" rel="noopener noreferrer">created by <img class="pfp" src="data:image/png;base64,__PFP__" width="26" height="26" alt=""><strong>404snark_</strong></a>
+</footer>
+</div>
+<noscript><p class="nojs">zkSEND needs JavaScript. Everything runs in your browser; nothing is sent to the server.</p></noscript>
+<script>__SCRIPT__</script>
+</body>
+</html>

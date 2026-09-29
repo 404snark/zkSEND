@@ -1,0 +1,10 @@
+:root { --bg:#000; --ink:#ececec; --muted:#5f9d6c; --dim:#467852; --green:#8ff0a4; --green-2:#4fd07a; --line:#1c3a26; color-scheme: dark;
+  --mono: "JetBrains Mono", ui-monospace, "SF Mono", "Cascadia Mono", Menlo, Consolas, monospace; }
+body { margin:0; background:var(--bg); color:var(--muted); font:400 1rem/1.8 var(--mono); }
+main { max-width:40rem; margin:14vh auto; padding:0 1.25rem; }
+.wm strong { color:var(--ink); font-weight:700; letter-spacing:.28em; } .wm em { font-style:normal; font-size:.72rem; letter-spacing:.12em; color:var(--dim); margin-left:.6rem; }
+h1 { color:var(--green); font-weight:700; font-size:2rem; line-height:1.1; margin:2.5rem 0 1rem; text-shadow:0 0 18px rgba(143,240,164,.28); }
+.track { border:1px solid var(--line); height:.7rem; margin:1.75rem 0 .9rem; background:#020603; }
+#bar { height:100%; width:0; background:var(--green-2); box-shadow:0 0 12px rgba(79,208,122,.6); transition:width .2s; }
+.mono { color:var(--green); letter-spacing:.06em; }
+.small { color:var(--dim); font-size:.8rem; margin-top:2.5rem; letter-spacing:.04em; }

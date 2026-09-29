@@ -1,0 +1,13 @@
+{
+  "name": "zksend",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Shielded Zcash payment requests. One static page, no tracking, self-hosted bot protection.",
+  "license": "MIT",
+  "engines": { "node": ">=20" },
+  "scripts": {
+    "build": "node build.js",
+    "start": "node server.js",
+    "test": "node build.js && node --test test/*.test.js"
+  }
+}
