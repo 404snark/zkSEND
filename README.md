@@ -33,6 +33,10 @@ The one outside request the page can make is the status check. When you track a 
 asks Blockchair about that transaction ID directly. Blockchair sees your IP and the ID, not amounts,
 addresses or memos. Set `STATUS_CHECK=off` to remove it.
 
+Link previews (X, Discord, Telegram, Slack) are allowed to read the page so they can show a card;
+search engines are not, and the page asks not to be indexed. Previews only ever see the generic
+zkSEND card, because payment details live after the `#`, which no bot receives.
+
 Railway (or whatever host you use) still logs page loads with IPs, like any website. Those logs never
 contain payment details.
 
@@ -96,6 +100,7 @@ Optional settings:
 | `RATE_BURST` | `20` | page loads per visitor before the puzzle |
 | `CLIENT_IP_SOURCE` | `xff` | try `x-real-ip` if everyone suddenly gets the puzzle at once |
 | `POW_SECRET` | random | only needed if you run more than one replica |
+| `SITE_URL` | `https://zksend.net` | the site's address, used in link-preview cards (X, Discord, Telegram) |
 
 There are a few more knobs in the `CFG` block at the top of `server.js`.
 

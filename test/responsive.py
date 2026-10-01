@@ -17,7 +17,7 @@ STATES=[("home","/",None),("home-tip","/#tip",None),("home-batch","/#batch",None
  ("batch","/#"+"&".join(["k=pay","n=October%20payroll"]+[f"pu={UAS[i]}&pa=1.5&pm=memo%20{i}" for i in range(3)]),None),
  ("tracking",f"/#u={UAS[0]}&a=0.05&m=ZECINV-ab12cd&n=privacy&tx={TX}","track"),
  ("sealed","/#s="+"A"*120,None),("expired",f"/#u={UAS[0]}&a=1&m=x&x={now-10}",None),("bad","/#u=u1bad&m=x",None),
- ("guide","/guide",None),("faq","/faq","openfaq"),("security","/security",None),("terms","/terms",None),("popup","/","popup")]
+ ("sealed-result","/",'sealresult'),("guide","/guide",None),("faq","/faq","openfaq"),("security","/security",None),("terms","/terms",None),("popup","/","popup")]
 JS="""(vw)=>{
  const out={overflow:false,offscreen:[],small:[],zoominputs:[],overlap:false,tiny_targets:[]};
  const de=document.documentElement; out.overflow = de.scrollWidth > de.clientWidth + 1;
@@ -30,6 +30,8 @@ JS="""(vw)=>{
  const nav=document.getElementById('nav'), cta=document.querySelector('.top-cta'), wm=document.querySelector('.wordmark');
  if(vis(nav) && getComputedStyle(nav).position!=='absolute'){ const a=[...nav.querySelectorAll('a')].filter(vis).map(x=>x.getBoundingClientRect()); const right=Math.max(...a.map(x=>x.right)); if(right>cta.getBoundingClientRect().left-8 || a.some(x=>x.top>wm.getBoundingClientRect().bottom)) out.overlap=true; }
  for(const e of [...document.querySelectorAll('.top nav a, .top-cta, .wordmark strong')].filter(vis)){ const lh=parseFloat(getComputedStyle(e).lineHeight)||parseFloat(getComputedStyle(e).fontSize)*1.4; const r=e.getBoundingClientRect(); if(getComputedStyle(document.getElementById('nav')).position!=='absolute' || !e.closest('#nav')) { const textH=[...e.getClientRects()].length; if(textH>1 || (e.closest('#nav') && r.height>lh*1.6)) out.overlap=true; } }
+ for(const e of [...document.querySelectorAll('.code-big, .code-small, .memo, .amount > span:first-child')].filter(vis)){ const r=document.createRange(); r.selectNodeContents(e); const tops=new Set([...r.getClientRects()].map(x=>Math.round(x.top))); if(tops.size>1) out.overlap=true, out.offscreen.push('wraps: '+(e.id||e.className)); }
+ for(const id of ['r-addr','t-addr']){ const e=document.getElementById(id); if(e && vis(e) && e.value && e.scrollHeight>e.clientHeight+2) out.offscreen.push('address box cut off: '+id); }
  if(vw<=932) for(const e of document.querySelectorAll('.act,.preset,.tabs button,.help,#menu-toggle,.switch')){ if(!vis(e)) continue; const r=e.getBoundingClientRect(); if(r.height<36) out.tiny_targets.push((e.id||e.className)+':'+Math.round(r.height)); }
  return out; }"""
 issues=collections.defaultdict(list)
@@ -44,6 +46,10 @@ with sync_playwright() as p:
             if act=="track": pg.click("#rc-go"); pg.wait_for_timeout(250)
             if act=="openfaq": pg.evaluate("()=>document.querySelectorAll('details').forEach(d=>d.open=true)")
             if act=="popup": pg.click(".switch[for=r-seal]"); pg.click("#form-request .help"); pg.wait_for_timeout(150)
+            if act=="sealresult":
+                pg.fill("#r-addr", UAS[0]); pg.evaluate("()=>document.getElementById('r-addr').dispatchEvent(new Event('input'))")
+                pg.fill("#r-amount","0.05"); pg.click(".switch[for=r-seal]"); pg.fill("#r-code",""); pg.locator("#r-code").press_sequentially("W0Y10T9NAQ4B",delay=1)
+                pg.click("#form-request button[type=submit]"); pg.wait_for_timeout(2200)
             r=pg.evaluate(JS,w)
             for k in ("overflow","overlap"):
                 if r[k]: issues[k].append(f"{w}x{h} {name}")

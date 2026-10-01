@@ -526,11 +526,11 @@
       }
       if (st.state === "confirmed") {
         paint(st, 3, false, n, "confirming", `confirming: ${n} of ${FINAL_CONFS}`,
-          `In block ${st.height.toLocaleString()}. A new block arrives about every 75 seconds, so this takes roughly ${Math.max(1, Math.round(((FINAL_CONFS - n) * 75) / 60))} more minute${FINAL_CONFS - n === 1 ? "" : "s"}.`);
+          `In block ${st.height.toLocaleString()}. ${FINAL_CONFS - n} more block${FINAL_CONFS - n === 1 ? "" : "s"} until it's final.`);
         return later(45000);
       }
       if (st.state === "pending") {
-        paint(st, 3, false, 0, "confirming", `confirming: 0 of ${FINAL_CONFS}`, "Found it on the network. Waiting for the first confirmation, usually a few minutes.");
+        paint(st, 3, false, 0, "confirming", `confirming: 0 of ${FINAL_CONFS}`, "Found it on the network. Waiting for it to be included in a block.");
         return later(30000);
       }
       if (st.state === "unseen") {
@@ -705,6 +705,15 @@
   }
 
   // "seal this link" toggles
+  // Address boxes grow to show the whole address, so you can check every character.
+  const autosize = (el) => { el.style.height = "auto"; el.style.height = Math.min(el.scrollHeight + 2, 420) + "px"; };
+  for (const id of ["r-addr", "t-addr"]) {
+    const el = $(id);
+    el.addEventListener("input", () => autosize(el));
+    el.form.addEventListener("reset", () => setTimeout(() => autosize(el), 0));
+    window.addEventListener("resize", () => autosize(el));
+  }
+
   document.querySelectorAll(".code-input").forEach((input) => {
     const max = input.id === "unlock-code" ? 16 : 12;
     input.addEventListener("input", () => {

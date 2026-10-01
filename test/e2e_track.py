@@ -64,9 +64,12 @@ try:
     chain["confs"] = 1; tick(30000)
     check(state("rc")[1] == "confirming: 1 of 10" and pg.get_attribute("#rc-meter", "aria-valuenow") == "1"
           and pg.evaluate("()=>document.getElementById('rc-fill').style.width") == "10%", "1 confirmation: bar at 10%")
+    d1 = pg.text_content("#rc-detail")
+    check("9 more blocks until it's final" in d1 and "minute" not in d1 and "second" not in d1, "progress counts blocks, not minutes (block time can change)")
     for n in range(2, 10):
         chain["confs"] = n; tick(45000)
     check(state("rc")[1] == "confirming: 9 of 10" and pg.evaluate("()=>document.getElementById('rc-fill').style.width") == "90%", "bar follows confirmations up to 9 of 10")
+    check("1 more block until it's final" in pg.text_content("#rc-detail"), "singular at the last block")
     chain["confs"] = 10; tick(45000)
     check(state("rc") == ("complete", "complete") and steps("#rc-steps") == ["done"] * 5 and pg.is_hidden("#rc-go"), "10 confirmations -> complete, every step done")
     check("stored nothing" in pg.text_content("#rc-detail") and "4 hours" in pg.text_content("#rc-detail"), "complete message: nothing stored, clears in 4 hours")

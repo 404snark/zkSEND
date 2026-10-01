@@ -462,3 +462,22 @@ html { font-size: clamp(1rem, 0.9rem + 0.32vw, 1.35rem); }
   .wordmark em { display: none; }
   .top-cta { flex: 1; margin-left: 0; justify-content: flex-start; }
 }
+/* Codes and memos never break across lines; the copy button moves below when space is tight. */
+.code-big, .code-small, .memo, .code-row input { white-space: nowrap; }
+.code-big { flex: 1 1 15rem; overflow-x: auto; }
+/* Address boxes grow to fit the whole address (set by app.js); this is the fallback. */
+#r-addr, #t-addr { min-height: 6.5rem; overflow-y: hidden; }
+
+/* =====================================================================
+   Desktop layout: one centered column. Header, content and footer share
+   the same left and right edges, so nothing hugs the left of the screen.
+   ===================================================================== */
+:root { --col: 60rem; }
+.top-inner, main, .devtip, .foot { max-width: var(--col); }
+#create > *, #pay > *, #tip > *, #batch > *, #bad > *, #expired > *, .page { max-width: none; }
+.page-sec > p, .page-lede { max-width: 68ch; }
+.faq-list details > p, .steps-list li, .dash-list li { max-width: none; }
+.faq-list details > p { max-width: 70ch; }
+/* Gentler growth on laptops and desktops; phones stay at 16px. */
+html { font-size: clamp(1rem, 0.9rem + 0.24vw, 1.3rem); }
+.page-head h1 { font-size: clamp(2.6rem, 6.4vw, 4rem); }

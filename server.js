@@ -30,8 +30,11 @@ const CFG = {
   maxKeys: num("RATE_MAX_TRACKED", 100000),
   // Payment tracking asks Blockchair from the visitor's browser. "off" removes the button and blocks the request.
   statusCheck: str("STATUS_CHECK", "on").toLowerCase(),
+  // Absolute address used in link-preview tags (X, Discord, Telegram need full URLs).
+  siteUrl: str("SITE_URL", "https://zksend.net").replace(/\/+$/, ""),
 };
 if (!["on", "off"].includes(CFG.statusCheck)) throw new Error("STATUS_CHECK must be on or off");
+if (!/^https?:\/\/[a-z0-9.-]+(:\d+)?$/i.test(CFG.siteUrl)) throw new Error("SITE_URL must look like https://zksend.net");
 if (!["off", "auto", "always"].includes(CFG.powMode)) throw new Error("POW_MODE must be off, auto or always");
 if (!["xff", "x-real-ip", "socket"].includes(CFG.ipSource)) throw new Error("CLIENT_IP_SOURCE must be xff, x-real-ip or socket");
 if (!(CFG.powBits >= 8 && CFG.powBits <= 28 && CFG.powBitsUnderAttack >= CFG.powBits && CFG.powBitsUnderAttack <= 28))
@@ -59,8 +62,15 @@ const STATUS_ORIGIN = "https://api.blockchair.com";
 const APP = asset("index.html", (html) => {
   const tag = '<meta name="zksend-status" content="on">';
   if (!html.includes(tag)) throw new Error("dist/index.html is out of date; run node build.js");
+  html = html.split("__SITE_URL__").join(CFG.siteUrl);
   return CFG.statusCheck === "on" ? html : html.replace(tag, '<meta name="zksend-status" content="off">');
 });
+// Link-preview image. Payment details live after the #, which no bot ever receives,
+// so previews only ever show this generic card.
+const OG_IMAGE = fs.readFileSync(path.join(__dirname, "img", "og.png"));
+// Only link-preview bots may read pages (to build the card). Everyone else, including search engines, stays out.
+const PREVIEW_BOTS = ["Twitterbot", "facebookexternalhit", "Discordbot", "TelegramBot", "Slackbot", "Slackbot-LinkExpanding", "LinkedInBot", "WhatsApp"];
+const ROBOTS = PREVIEW_BOTS.map((b) => `User-agent: ${b}\nAllow: /\n`).join("\n") + "\nUser-agent: *\nDisallow: /\n";
 const CHALLENGE_TEMPLATE = fs.readFileSync(path.join(DIST, "challenge.html"), "utf8");
 
 // The app's own pages. They all serve the same file; the page picks what to show from the path.
@@ -259,7 +269,11 @@ function handler(req, res) {
     return handlePow(req, res, ips.visitor);
   }
   if (req.method !== "GET" && req.method !== "HEAD") return send(req, res, 405, "method not allowed\n", "text/plain", { Allow: "GET, HEAD" });
-  if (url === "/robots.txt") return send(req, res, 200, "User-agent: *\nDisallow: /\n", "text/plain");
+  if (url === "/robots.txt") return send(req, res, 200, ROBOTS, "text/plain");
+  if (url === "/og.png") {
+    res.setHeader("Cross-Origin-Resource-Policy", "cross-origin"); // previews are shown on other sites
+    return send(req, res, 200, OG_IMAGE, "image/png", { "Cache-Control": "public, max-age=86400", "Content-Length": OG_IMAGE.length });
+  }
   if (!APP_PATHS.has(url)) return send(req, res, 404, "not found\n", "text/plain");
 
   if (CFG.powMode === "off") return rl.soft ? tooMany(req, res) : sendApp(req, res);

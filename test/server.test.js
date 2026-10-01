@@ -121,3 +121,33 @@ test("STATUS_CHECK=off blocks the status request and hides the button", async ()
     assert.match(await r.text(), /<meta name="zksend-status" content="off">/);
   } finally { child.kill(); }
 });
+
+test("link previews: card tags, image, and bot rules", async () => {
+  const html = await (await get("/", "10.9.9.1")).text();
+  for (const tag of ['property="og:image" content="https://zksend.net/og.png"', 'name="twitter:card" content="summary_large_image"',
+    'property="og:title"', 'name="twitter:image" content="https://zksend.net/og.png"', 'name="robots" content="noindex, nofollow"'])
+    assert.ok(html.includes(tag), tag);
+  assert.ok(!html.includes("__SITE_URL__"));
+  const img = await get("/og.png", "10.9.9.2");
+  assert.equal(img.status, 200);
+  assert.equal(img.headers.get("content-type"), "image/png");
+  assert.equal(img.headers.get("cross-origin-resource-policy"), "cross-origin");
+  const png = Buffer.from(await img.arrayBuffer());
+  assert.equal(png.readUInt32BE(16), 1200); assert.equal(png.readUInt32BE(20), 630);
+  const robots = await (await get("/robots.txt", "10.9.9.3")).text();
+  for (const bot of ["Twitterbot", "Discordbot", "TelegramBot", "facebookexternalhit"]) assert.match(robots, new RegExp(`User-agent: ${bot}\\nAllow: /`));
+  assert.match(robots, /User-agent: \*\nDisallow: \/\n$/, "everyone else, including search engines, stays out");
+});
+
+test("SITE_URL changes the preview links; a bad one stops the server", async () => {
+  const { spawn, spawnSync } = require("child_process");
+  const dir = require("path").join(__dirname, "..");
+  const bad = spawnSync(process.execPath, ["server.js"], { cwd: dir, env: { ...process.env, PORT: "0", SITE_URL: "zksend.net" }, timeout: 3000, encoding: "utf8" });
+  assert.match(bad.stderr, /SITE_URL must look like/);
+  const child = spawn(process.execPath, ["server.js"], { cwd: dir, env: { ...process.env, PORT: "8794", SITE_URL: "https://pay.example.org/", POW_MODE: "off" }, stdio: ["ignore", "pipe", "pipe"] });
+  await new Promise((r) => child.stdout.once("data", r));
+  try {
+    const html = await (await fetch("http://127.0.0.1:8794/")).text();
+    assert.ok(html.includes('content="https://pay.example.org/og.png"'));
+  } finally { child.kill(); }
+});
