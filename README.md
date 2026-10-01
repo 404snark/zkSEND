@@ -20,6 +20,8 @@ and it keeps nothing on the server.
 - **Progress bar**: after paying, the payer pastes the transaction ID and the page follows it from the mempool through 10 confirmations. Both sides can open the same tracking link.
 - **Noir**: if the Noir browser wallet is installed, "pay with Noir" sends directly and the tracking starts by itself.
 - **Pay buttons**: HTML and Markdown snippets, so a request can go on a site or in a Discord post.
+- **Sealed links**: flip "seal this link" and the whole link is encrypted with a code (PBKDF2-SHA256 + AES-256-GCM, in the browser). Chat apps, link previews and browser history only see `#s=…`. Send the code separately; dashes fill in as you type it. Tracking links made from a sealed link stay sealed, and pay-many recipients each get their own code.
+- **Pages**: `/guide`, `/faq`, `/security` (threat model) and `/terms`, all served from the same static file.
 
 ## Privacy
 
@@ -33,6 +35,14 @@ addresses or memos. Set `STATUS_CHECK=off` to remove it.
 
 Railway (or whatever host you use) still logs page loads with IPs, like any website. Those logs never
 contain payment details.
+
+A normal link is readable by anyone who sees it, including the chat app it's sent through. Sealed links
+close that gap: without the code, the link is just ciphertext. Generated codes are 12 random characters
+(60 bits, 200k PBKDF2 iterations). Codes people choose are 8 to 12 letters or numbers, get 600k
+iterations, and obviously guessable ones are refused.
+
+The full threat model (who can see what, how it's enforced, and what zkSEND can't protect against)
+is on the site at `/security`.
 
 ## Wallet support
 
@@ -57,10 +67,11 @@ npm start         # http://localhost:8080  (use COOKIE_SECURE=false HSTS=false o
 npm test          # server tests
 ```
 
-The browser tests need Python with `playwright`, `zxing-cpp` and `zcash-uri`:
+The browser tests need Python with `playwright`, `zxing-cpp`, `zcash-uri` and `cryptography`:
 
 ```bash
-python3 test/e2e.py && python3 test/e2e_track.py && python3 test/e2e_wallets.py
+python3 test/e2e.py && python3 test/e2e_track.py && python3 test/e2e_wallets.py && python3 test/e2e_sealed.py
+python3 test/responsive.py   # every page at 17 screen sizes, 320px to 2560px
 ```
 
 Edit `template.html`, `style.css` and `app.js`, not `dist/`. The build regenerates the CSP hashes,

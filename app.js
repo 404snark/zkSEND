@@ -177,6 +177,11 @@
     if (/^[a-z][a-z-]{0,20}$/.test(h)) return { kind: "section", section: h };
     let q;
     try { q = new URLSearchParams(h); } catch (_) { return { error: "This link couldn't be read." }; }
+    if (q.has("s")) {
+      const blob = q.get("s");
+      if ([...q.keys()].length !== 1 || !/^[A-Za-z0-9_-]{65,16000}$/.test(blob)) return { error: "This sealed link is damaged. Ask for a fresh one." };
+      return { kind: "sealed", blob };
+    }
     const label = cleanText(q.get("n"), LABEL_MAX);
     const kind = q.get("k") || "request";
 
@@ -224,6 +229,70 @@
     const xs = q.get("x");
     if (xs !== null && !/^\d{9,11}$/.test(xs)) return { error: "This link's expiry time isn't valid." };
     return { kind: "request", address: a.address, testnet: a.testnet, zat: z.zat, memo: m.memo, label, tx, expires: xs ? Number(xs) : null };
+  }
+
+  // ---------- sealed links ----------
+  // The whole fragment is encrypted with a code: PBKDF2-SHA256 -> AES-256-GCM (WebCrypto).
+  // Format: #s=base64url( 0x01 | iterations u32 BE | salt[16] | iv[12] | ciphertext+tag )
+  // Generated codes: 12 random characters (60 bits), 200k iterations. Codes people choose: 8-12 characters, 600k.
+  const SEAL_V = 1, ITER_GENERATED = 200000, ITER_CUSTOM = 600000, ITER_MIN = 10000, ITER_MAX = 2000000;
+  const SEAL_AAD = new TextEncoder().encode("zksend-seal-v1");
+  const CODE_ALPHABET = "0123456789ABCDEFGHJKMNPQRSTVWXYZ";
+  const canSeal = () => !!(window.crypto && crypto.subtle && window.isSecureContext !== false);
+  function newCode() {
+    const b = crypto.getRandomValues(new Uint8Array(12)); // 256 % 32 === 0, so x & 31 is uniform
+    return prettyCode(Array.from(b, (x) => CODE_ALPHABET[x & 31]).join(""));
+  }
+  const prettyCode = (k) => (k.match(/.{1,4}/g) || []).join("-");
+  // Codes are forgiving: case, spaces, dashes and I/L/O look-alikes don't matter.
+  function codeKey(code) {
+    return String(code || "").toUpperCase().replace(/[^0-9A-Z]/g, "").replace(/[IL]/g, "1").replace(/O/g, "0");
+  }
+  function normCode(code) { const key = codeKey(code); return { key, pretty: prettyCode(key) }; }
+  // For codes people choose: 8-12 letters or numbers, and not obviously guessable.
+  function checkCode(code) {
+    const key = codeKey(code);
+    if (key.length < 8 || key.length > 12) return { ok: false, reason: "Codes are 8 to 12 letters or numbers." };
+    const seq = "0123456789ABCDEFGHJKMNPQRSTVWXYZ";
+    if (new Set(key).size < 4 || seq.includes(key) || [...seq].reverse().join("").includes(key) || /^(.{1,4})\1+$/.test(key))
+      return { ok: false, reason: "That code is too easy to guess. Use the generated one, or mix more letters and numbers." };
+    // Show the code the way it was typed (letter O stays O); look-alikes only merge inside the key.
+    return { ok: true, key, pretty: prettyCode(String(code).toUpperCase().replace(/[^0-9A-Z]/g, "")) };
+  }
+  const bytesToB64u = (u8) => { let s = ""; for (const x of u8) s += String.fromCharCode(x); return btoa(s).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, ""); };
+  const b64uToBytes = (str) => { const b = atob(str.replace(/-/g, "+").replace(/_/g, "/") + "===".slice((str.length + 3) % 4)); return Uint8Array.from(b, (c) => c.charCodeAt(0)); };
+  async function sealKey(codeKey, salt, iterations) {
+    const base = await crypto.subtle.importKey("raw", new TextEncoder().encode(codeKey), "PBKDF2", false, ["deriveKey"]);
+    return crypto.subtle.deriveKey({ name: "PBKDF2", salt, iterations, hash: "SHA-256" }, base, { name: "AES-GCM", length: 256 }, false, ["encrypt", "decrypt"]);
+  }
+  // plain: fragment without "#". Returns "#s=...".
+  async function seal(plain, code, iterations = ITER_CUSTOM) {
+    const c = normCode(code);
+    if (c.key.length < 8) throw new Error("code too short");
+    if (!(iterations >= ITER_MIN && iterations <= ITER_MAX)) throw new Error("bad iterations");
+    const salt = crypto.getRandomValues(new Uint8Array(16)), iv = crypto.getRandomValues(new Uint8Array(12));
+    const key = await sealKey(c.key, salt, iterations);
+    const ct = new Uint8Array(await crypto.subtle.encrypt({ name: "AES-GCM", iv, additionalData: SEAL_AAD }, key, new TextEncoder().encode(plain)));
+    const out = new Uint8Array(1 + 4 + 16 + 12 + ct.length);
+    out[0] = SEAL_V; new DataView(out.buffer).setUint32(1, iterations); out.set(salt, 5); out.set(iv, 21); out.set(ct, 33);
+    return "#s=" + bytesToB64u(out);
+  }
+  // Returns { plain, iterations }, or null if the code is wrong or the link was altered.
+  async function unseal(blob, code) {
+    let bytes;
+    try { bytes = b64uToBytes(blob); } catch (_) { return null; }
+    if (bytes.length < 33 + 16 || bytes[0] !== SEAL_V) return null;
+    const iterations = new DataView(bytes.buffer, bytes.byteOffset).getUint32(1);
+    if (iterations < ITER_MIN || iterations > ITER_MAX) return null;
+    const attempt = async (k) => {
+      try {
+        const key = await sealKey(k, bytes.slice(5, 21), iterations);
+        const pt = await crypto.subtle.decrypt({ name: "AES-GCM", iv: bytes.slice(21, 33), additionalData: SEAL_AAD }, key, bytes.slice(33));
+        return { plain: new TextDecoder().decode(pt), iterations };
+      } catch (_) { return null; }
+    };
+    const k = codeKey(code);
+    return k.length >= 8 ? attempt(k) : null;
   }
 
   // The developer's tip jar, linked at the bottom of every page.
@@ -279,7 +348,7 @@
     }
   }
 
-  window.ZkSend = { noirProvider, noirSend, fetchStatus, DEV_TIP, checkAddress, parseZec, formatZec, cleanText, checkMemo, b64url, paymentUri, multiUri, parseBatch,
+  window.ZkSend = { seal, unseal, newCode, normCode, checkCode, codeKey, ITER_GENERATED, ITER_CUSTOM, noirProvider, noirSend, fetchStatus, DEV_TIP, checkAddress, parseZec, formatZec, cleanText, checkMemo, b64url, paymentUri, multiUri, parseBatch,
     fragRequest, fragTip, fragBatch, parseFragment, newRef, polymod };
   if (!document.getElementById("app")) return;
 
@@ -287,7 +356,7 @@
   // DOM
   // =====================================================================
   const $ = (id) => document.getElementById(id);
-  const baseUrl = () => location.href.split("#")[0];
+  const baseUrl = () => location.origin + "/";
   const QR_MAX = 1200; // characters; beyond this a QR code gets too dense to scan phone-to-phone
 
   function qrSvg(text) {
@@ -360,8 +429,8 @@
   const STATUS_ON = !statusMeta || statusMeta.getAttribute("content") !== "off";
 
   // "tip the dev" at the very end of every page
-  if (checkAddress(DEV_TIP.address).ok) { $("devtip-link").href = fragTip(DEV_TIP); $("nav-tip").href = fragTip(DEV_TIP); }
-  else { $("devtip").hidden = true; $("nav-tip").hidden = true; }
+  if (checkAddress(DEV_TIP.address).ok) for (const id of ["devtip-link", "nav-tip", "foot-tip"]) $(id).href = "/" + fragTip(DEV_TIP);
+  else for (const id of ["devtip", "nav-tip", "foot-tip"]) $(id).hidden = true;
 
   // header: mobile menu + current-page highlight
   const topBar = document.querySelector(".top");
@@ -377,6 +446,7 @@
 
   // ---------------- progress: pay -> sent -> on the network -> confirming -> complete ----------------
   const STAGES = ["pay", "sent", "on the network", "confirming", "complete"];
+  const STAGES_SHORT = ["pay", "sent", "network", "confirm", "done"];
   const FINAL_CONFS = 10, SEARCH_GIVE_UP_MS = 60 * 60 * 1000, CLEAR_AFTER_MS = 4 * 60 * 60 * 1000;
   function drawSteps(ol, active, complete) {
     ol.replaceChildren(...STAGES.map((label, i) => {
@@ -384,7 +454,8 @@
       const li = el("li", done ? "done" : i === active ? "active" : "todo");
       if (!complete && i === active) li.setAttribute("aria-current", "step");
       const n = el("span", "n", done ? "✓" : String(i + 1)); n.setAttribute("aria-hidden", "true");
-      li.append(n, el("span", "l", label));
+      const short = el("span", "ls", STAGES_SHORT[i]); short.setAttribute("aria-hidden", "true");
+      li.append(n, el("span", "l", label), short);
       if (done) li.append(el("span", "sr", " (done)"));
       return li;
     }));
@@ -540,7 +611,45 @@
     };
   }
 
-  const VIEWS = ["create", "pay", "tip", "batch", "expired", "bad"];
+  const VIEWS = ["create", "page-guide", "page-faq", "page-security", "page-terms", "pay", "tip", "batch", "sealed", "expired", "bad"];
+  const PAGES = {
+    "/guide": { view: "page-guide", title: "Guide" },
+    "/faq": { view: "page-faq", title: "FAQ" },
+    "/security": { view: "page-security", title: "Security" },
+    "/terms": { view: "page-terms", title: "Terms" },
+  };
+  const LEGACY_SECTIONS = { how: "/guide", guide: "/guide", faq: "/faq", terms: "/terms", security: "/security" };
+
+  // Opened sealed links, kept in memory for this tab only: blob -> { plain, code }.
+  const opened = new Map();
+  let currentSeal = null; // the code of the sealed link on screen, so its tracking links stay sealed
+  // Navigate to a plain fragment, sealing it first when we're inside a sealed link.
+  async function go(frag) {
+    if (!currentSeal) { location.hash = frag; return; }
+    const plain = frag.replace(/^#/, "");
+    const sealed = await seal(plain, currentSeal.code, currentSeal.iterations);
+    opened.set(sealed.slice(3), { plain, code: currentSeal.code, iterations: currentSeal.iterations });
+    location.hash = sealed;
+  }
+  function showSealBadge(id) { $(id).hidden = !currentSeal; }
+
+  let unlockBlob = null;
+  $("unlock-form").onsubmit = async (e) => {
+    e.preventDefault();
+    if (!unlockBlob) return;
+    const code = $("unlock-code").value;
+    showError("unlock-error");
+    if (!code.trim()) return showError("unlock-error", "Enter the code you were given.");
+    if (!canSeal()) return showError("unlock-error", "This browser can't decrypt sealed links here. Open the link over https in an up-to-date browser.");
+    const btn = $("unlock-btn");
+    btn.disabled = true; btn.lastChild.textContent = "unlocking…";
+    const res = await unseal(unlockBlob, code);
+    btn.disabled = false; btn.lastChild.textContent = "unlock";
+    if (res === null) return showError("unlock-error", "That code doesn't open this link. Check it and try again.");
+    opened.set(unlockBlob, { plain: res.plain, code, iterations: res.iterations });
+    $("unlock-code").value = "";
+    route();
+  };
   function show(id) {
     VIEWS.forEach((v) => ($(v).hidden = v !== id));
     window.scrollTo(0, 0);
@@ -592,9 +701,63 @@
       $("modes").scrollIntoView();
       return;
     }
-    const target = section && document.getElementById(section);
-    if (target && $("create").contains(target)) target.scrollIntoView();
-    else if (wasHidden || !section) window.scrollTo(0, 0);
+    if (wasHidden || !section) window.scrollTo(0, 0);
+  }
+
+  // "seal this link" toggles
+  document.querySelectorAll(".code-input").forEach((input) => {
+    const max = input.id === "unlock-code" ? 16 : 12;
+    input.addEventListener("input", () => {
+      const key = input.value.toUpperCase().replace(/[^0-9A-Z]/g, "").slice(0, max);
+      const next = prettyCode(key);
+      if (next !== input.value) { input.value = next; input.setSelectionRange(next.length, next.length); }
+    });
+  });
+
+  // Help popups: native popover where supported, a simple toggle elsewhere.
+  if (!HTMLElement.prototype.hasOwnProperty("popover")) {
+    document.addEventListener("click", (e) => {
+      const btn = e.target.closest("[popovertarget]");
+      if (!btn) return;
+      const pop = document.getElementById(btn.getAttribute("popovertarget"));
+      pop.classList.toggle("pop-open", btn.getAttribute("popovertargetaction") !== "hide" && !pop.classList.contains("pop-open"));
+    });
+  }
+
+  const generated = {}; // the code we generated per form, so a typed code gets the stronger stretching
+  for (const p of ["r", "t", "b"]) {
+    const box = $(p + "-seal"), codeBox = $(p + "-seal-box");
+    if (!canSeal()) {
+      box.disabled = true;
+      const why = box.closest(".seal-opt").querySelector(".seal-why");
+      why.textContent = "Sealing needs a secure (https) connection."; why.hidden = false;
+    }
+    const fresh = () => { generated[p] = newCode(); $(p + "-code").value = generated[p]; };
+    box.onchange = () => {
+      codeBox.hidden = !box.checked;
+      if (box.checked && !$(p + "-code").value.trim()) fresh();
+    };
+    $(p + "-code-new").onclick = () => { fresh(); $(p + "-result").hidden = true; };
+    box.form.addEventListener("reset", () => setTimeout(() => { codeBox.hidden = true; $(p + "-code").value = ""; $(p + "-sealed-out").hidden = true; }, 0));
+  }
+  // Seal a freshly made link if the toggle is on, then show it. Returns false if the code is unusable.
+  async function finishLink(p, frag, buttonText, submitBtn) {
+    let link = baseUrl() + frag;
+    const out = $(p + "-sealed-out");
+    out.hidden = true;
+    if ($(p + "-seal").checked) {
+      const isGenerated = codeKey($(p + "-code").value) === codeKey(generated[p]);
+      const c = isGenerated ? { ok: true, pretty: prettyCode(codeKey(generated[p])) } : checkCode($(p + "-code").value);
+      if (!c.ok) { showError(p + "-error", c.reason); $(p + "-code").focus(); return false; }
+      const label = submitBtn.firstChild.textContent;
+      submitBtn.disabled = true; submitBtn.firstChild.textContent = "sealing… ";
+      try { link = baseUrl() + (await seal(frag.replace(/^#/, ""), c.pretty, isGenerated ? ITER_GENERATED : ITER_CUSTOM)); }
+      finally { submitBtn.disabled = false; submitBtn.firstChild.textContent = label; }
+      $(p + "-code-out").textContent = c.pretty;
+      out.hidden = false;
+    }
+    fillResult(p, link, buttonText);
+    return true;
   }
 
   // A link on screen must always match the form. Any edit hides the old one.
@@ -605,7 +768,7 @@
   let reqMemo = newRef("ZECINV");
   $("r-memo").textContent = reqMemo;
   $("r-regen").onclick = () => { reqMemo = newRef("ZECINV"); $("r-memo").textContent = reqMemo; $("r-result").hidden = true; };
-  $("form-request").onsubmit = (e) => {
+  $("form-request").onsubmit = async (e) => {
     e.preventDefault();
     $("r-result").hidden = true;
     showError("r-error");
@@ -616,9 +779,9 @@
     const label = cleanText($("r-label").value, LABEL_MAX);
     const hours = Number($("r-expiry").value) || 0;
     const expires = hours ? Math.floor(Date.now() / 1000) + hours * 3600 : null;
-    const link = baseUrl() + fragRequest({ address: a.address, zat: z.zat, memo: reqMemo, label, expires });
     $("r-testnet").hidden = !a.testnet;
-    fillResult("r", link, z.zat != null ? `Pay ${formatZec(z.zat)} ZEC` : "Pay with ZEC");
+    await finishLink("r", fragRequest({ address: a.address, zat: z.zat, memo: reqMemo, label, expires }),
+      z.zat != null ? `Pay ${formatZec(z.zat)} ZEC` : "Pay with ZEC", e.submitter || $("form-request").querySelector("[type=submit]"));
   };
   $("r-clear").onclick = () => {
     $("form-request").reset(); showError("r-error"); $("r-result").hidden = true;
@@ -626,7 +789,7 @@
   };
 
   // ---------------- create: tip jar ----------------
-  $("form-tip").onsubmit = (e) => {
+  $("form-tip").onsubmit = async (e) => {
     e.preventDefault();
     $("t-result").hidden = true;
     showError("t-error");
@@ -641,9 +804,8 @@
     if (presets.length > MAX_PRESETS) { showError("t-error", `Use at most ${MAX_PRESETS} suggested amounts.`); return $("t-presets").focus(); }
     presets.sort((x, y) => (x < y ? -1 : x > y ? 1 : 0));
     const label = cleanText($("t-label").value, LABEL_MAX);
-    const link = baseUrl() + fragTip({ address: a.address, label, presets });
     $("t-testnet").hidden = !a.testnet;
-    fillResult("t", link, "Tip in ZEC");
+    await finishLink("t", fragTip({ address: a.address, label, presets }), "Tip in ZEC", e.submitter || $("form-tip").querySelector("[type=submit]"));
   };
   $("t-clear").onclick = () => { $("form-tip").reset(); showError("t-error"); $("t-result").hidden = true; };
 
@@ -658,7 +820,7 @@
   }
   $("b-list").addEventListener("input", batchPreview);
   $("b-memo").addEventListener("input", batchPreview);
-  $("form-batch").onsubmit = (e) => {
+  $("form-batch").onsubmit = async (e) => {
     e.preventDefault();
     $("b-result").hidden = true;
     const b = batchPreview();
@@ -672,8 +834,7 @@
     }
     showError("b-error");
     const label = cleanText($("b-label").value, LABEL_MAX);
-    const link = baseUrl() + fragBatch({ label, rows: b.rows });
-    fillResult("b", link, `Pay ${b.rows.length} people in ZEC`);
+    await finishLink("b", fragBatch({ label, rows: b.rows }), `Pay ${b.rows.length} people in ZEC`, e.submitter || $("form-batch").querySelector("[type=submit]"));
   };
   $("b-clear").onclick = () => { $("form-batch").reset(); showError("b-error"); $("b-errors").replaceChildren(); $("b-summary").textContent = ""; $("b-result").hidden = true; };
 
@@ -696,6 +857,7 @@
       return;
     }
     show("pay");
+    showSealBadge("p-sealed");
     const exp = $("p-expires");
     exp.hidden = !(r.expires && !r.tx);
     if (r.expires && !r.tx) {
@@ -729,7 +891,7 @@
         zat = z.zat;
       }
       return { address: r.address, zat, memo: r.memo };
-    }, (tx) => { location.hash = fragRequest(r, tx); });
+    }, (tx) => go(fragRequest(r, tx)));
     $("p-fp").textContent = fingerprint(r.address);
     $("p-uri").textContent = uri;
     drawSteps($("p-steps"), 0, false);
@@ -737,7 +899,7 @@
     $("rc-memo-row").hidden = !r.memo;
     $("rc-share-copy").onclick = (e) => doCopy(e.currentTarget, location.href);
     if (r.tx) tracker("rc", r.tx, r.testnet);
-    sentForm("p", (tx) => { location.hash = fragRequest(r, tx); });
+    sentForm("p", (tx) => go(fragRequest(r, tx)));
   }
 
   // ---------------- pay: tip jar ----------------
@@ -746,6 +908,7 @@
     document.title = "tip " + (t.label || "") + " · zkSEND";
     $("tp-title").textContent = t.label ? `Tip ${t.label}` : "Send a tip";
     $("tp-official").hidden = t.address !== DEV_TIP.address;
+    showSealBadge("tp-sealed");
     let current = { zat: null, memo: "" };
     $("tp-testnet").hidden = !t.testnet;
     $("tp-fp").textContent = fingerprint(t.address);
@@ -790,7 +953,7 @@
     update();
     drawSteps($("tp-steps"), 0, false);
     wireOpen("tp");
-    const tipTrack = (tx) => { location.hash = fragRequest({ address: t.address, zat: current.zat, memo: current.memo, label: t.label ? `Tip for ${t.label}` : "Tip", testnet: t.testnet }, tx); };
+    const tipTrack = (tx) => go(fragRequest({ address: t.address, zat: current.zat, memo: current.memo, label: t.label ? `Tip for ${t.label}` : "Tip", testnet: t.testnet }, tx));
     wireNoir("tp", () => current.invalid ? { error: "Fix the amount first." } : current.zat === null ? { error: "Choose or enter an amount first." }
       : { address: t.address, zat: current.zat, memo: current.memo }, tipTrack);
     sentForm("tp", (tx) => {
@@ -798,7 +961,7 @@
         showError("tp-sent-error", "Fix the tip amount above first, so the tracking page shows what you sent.");
         return $("tp-custom").focus();
       }
-      location.hash = fragRequest({ address: t.address, zat: current.zat, memo: current.memo, label: t.label ? `Tip for ${t.label}` : "Tip", testnet: t.testnet }, tx);
+      tipTrack(tx);
     });
   }
 
@@ -806,6 +969,7 @@
   function renderBatch(b) {
     show("batch");
     $("batch").dataset.mode = b.tx ? "receipt" : "request";
+    showSealBadge("bp-sealed");
     $("bp-kicker").textContent = b.tx ? "pay list progress" : "pay list";
     document.title = (b.tx ? "tracking: " : "") + (b.label || "pay list") + " · zkSEND";
     $("bp-title").textContent = b.label || "pay list";
@@ -836,18 +1000,26 @@
       list.append(li);
     });
     drawSteps($("bp-steps"), 0, false);
-    sentForm("bp", (tx) => { location.hash = fragBatch(b, tx); });
+    sentForm("bp", (tx) => go(fragBatch(b, tx)));
     if (b.tx) {
       $("bt-memo-row").hidden = true;
+      $("bt-sealed-note").hidden = !currentSeal;
       const out = $("bt-links");
       out.replaceChildren();
-      b.rows.forEach((r) => {
-        const link = baseUrl() + fragRequest({ address: r.address, zat: r.zat, memo: r.memo, label: b.label }, b.tx);
-        const li = el("li");
-        li.append(el("strong", "pay-amt", formatZec(r.zat) + " ZEC"), el("code", "fp", fingerprint(r.address)), copyButton(() => link, "copy their link"));
-        out.append(li);
-      });
       tracker("bt", b.tx, b.rows[0].testnet);
+      const gen = trackGen, sealedList = !!currentSeal; // after tracker(), which bumps trackGen
+      (async () => {
+        for (const r of b.rows) {
+          const frag = fragRequest({ address: r.address, zat: r.zat, memo: r.memo, label: b.label }, b.tx);
+          let link = baseUrl() + frag, code = null;
+          if (sealedList) { code = newCode(); link = baseUrl() + (await seal(frag.slice(1), code, ITER_GENERATED)); }
+          if (gen !== trackGen) return; // navigated away
+          const li = el("li");
+          li.append(el("strong", "pay-amt", formatZec(r.zat) + " ZEC"), el("code", "fp", fingerprint(r.address)), copyButton(() => link, "copy their link"));
+          if (code) { li.append(el("code", "code-small", code), copyButton(() => code, "copy code")); }
+          out.append(li);
+        }
+      })();
     }
   }
 
@@ -855,11 +1027,38 @@
     trackGen++;
     clearTimeout(expiryTimer);
     setMenu(false);
-    const p = parseFragment(location.hash);
-    markNav(!p ? "home" : p.kind === "section" ? ({ how: "guide", guide: "guide", faq: "faq", terms: "terms" }[p.section] || "home")
+    const path = location.pathname.replace(/\/+$/, "") || "/";
+    const page = PAGES[path];
+    if (page) {
+      VIEWS.forEach((v) => ($(v).hidden = v !== page.view));
+      document.title = page.title + " · zkSEND";
+      markNav(path.slice(1));
+      return;
+    }
+    let p = parseFragment(location.hash);
+    // Old in-page links (#faq, #how, ...) now live on their own pages.
+    if (p && p.kind === "section" && LEGACY_SECTIONS[p.section]) { location.replace(LEGACY_SECTIONS[p.section]); return; }
+    currentSeal = null;
+    if (p && p.kind === "sealed") {
+      const hit = opened.get(p.blob);
+      if (!hit) {
+        unlockBlob = p.blob;
+        markNav("");
+        show("sealed");
+        document.title = "sealed link · zkSEND";
+        showError("unlock-error");
+        if (!canSeal()) showError("unlock-error", "This browser can't decrypt sealed links here. Open the link over https in an up-to-date browser.");
+        setTimeout(() => $("unlock-code").focus(), 50);
+        return;
+      }
+      p = parseFragment("#" + hit.plain);
+      if (!p || p.kind === "sealed" || p.kind === "section") p = { error: "This sealed link doesn't contain a payment." };
+      else currentSeal = { code: hit.code, iterations: hit.iterations };
+    }
+    markNav(!p || p.kind === "section" ? "home"
       : p.kind === "tip" && p.address === DEV_TIP.address ? "tip" : "");
     if (!p) return renderCreate();
-    if (p.kind === "section") return renderCreate(p.section === "how" ? "guide" : p.section);
+    if (p.kind === "section") return renderCreate(p.section);
     if (p.error) { show("bad"); $("bad-msg").textContent = p.error; return; }
     if (p.kind === "tip") return renderTip(p);
     if (p.kind === "pay") return renderBatch(p);

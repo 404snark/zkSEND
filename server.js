@@ -63,6 +63,8 @@ const APP = asset("index.html", (html) => {
 });
 const CHALLENGE_TEMPLATE = fs.readFileSync(path.join(DIST, "challenge.html"), "utf8");
 
+// The app's own pages. They all serve the same file; the page picks what to show from the path.
+const APP_PATHS = new Set(["/", "/index.html", ...["/guide", "/faq", "/security", "/terms"].flatMap((p) => [p, p + "/"])]);
 const APP_CSP = `default-src 'none'; script-src ${CSP.app.script}; style-src ${CSP.app.style}; img-src data:; font-src data:; connect-src ${CFG.statusCheck === "on" ? STATUS_ORIGIN : "'none'"}; base-uri 'none'; form-action 'none'; frame-ancestors 'none'`;
 const POW_CSP = `default-src 'none'; script-src ${CSP.challenge.script}; style-src ${CSP.challenge.style}; img-src data:; connect-src 'self'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'`;
 
@@ -258,7 +260,7 @@ function handler(req, res) {
   }
   if (req.method !== "GET" && req.method !== "HEAD") return send(req, res, 405, "method not allowed\n", "text/plain", { Allow: "GET, HEAD" });
   if (url === "/robots.txt") return send(req, res, 200, "User-agent: *\nDisallow: /\n", "text/plain");
-  if (url !== "/" && url !== "/index.html") return send(req, res, 404, "not found\n", "text/plain");
+  if (!APP_PATHS.has(url)) return send(req, res, 404, "not found\n", "text/plain");
 
   if (CFG.powMode === "off") return rl.soft ? tooMany(req, res) : sendApp(req, res);
   const gate = CFG.powMode === "always" || rl.soft || busy(now);

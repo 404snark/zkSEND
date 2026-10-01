@@ -137,7 +137,7 @@ try:
     pg.goto(BASE); pg.wait_for_timeout(150)
     check(pg.evaluate("()=>!!(document.getElementById('devtip').compareDocumentPosition(document.querySelector('main')) & Node.DOCUMENT_POSITION_PRECEDING)"), "tip the dev sits after all content")
     href = pg.get_attribute("#devtip-link", "href")
-    check(urllib.parse.parse_qs(href.lstrip("#")) == {"k": ["tip"], "u": [DEV], "n": ["the zkSEND dev"]}, "tip-the-dev link points at the dev address, no suggested amounts")
+    check(href.startswith("/#") and urllib.parse.parse_qs(href.split("#", 1)[1]) == {"k": ["tip"], "u": [DEV], "n": ["the zkSEND dev"]}, "tip-the-dev link points at the dev address, no suggested amounts")
     pg.click("#devtip-link"); pg.wait_for_timeout(150)
     check(pg.is_visible("#tp-official") and parse(pg.get_attribute("#tp-open", "href"))[0]["address"] == DEV, "dev tip jar: official badge, pays the dev")
     check(pg.is_hidden("#tp-presets") and pg.text_content("#tp-custom-label") == "amount" and pg.text_content("#tp-amount") == "you choose", "dev tip jar: tipper enters their own amount")
@@ -155,37 +155,64 @@ try:
     pg.click(".top-cta"); pg.wait_for_timeout(120)
     check(pg.get_attribute("#tab-request", "aria-selected") == "true", "header 'new request' opens the request tab")
 
-    # ---------- "How it works" steps lay out as normal paragraphs; credit in FAQ + footer ----------
-    wide = b.new_page(viewport={"width": 1440, "height": 900}); wide.goto(BASE + "#guide"); wide.wait_for_timeout(150)
-    hs = wide.evaluate("()=>[...document.querySelectorAll('#guide li')].map(li=>Math.round(li.getBoundingClientRect().height))")
+    # ---------- pages: guide, faq, security, terms ----------
+    for path, view, h1 in [("guide", "#page-guide", "How zkSEND works"), ("faq", "#page-faq", "Questions"),
+                           ("security", "#page-security", "Threat model"), ("terms", "#page-terms", "Terms of use")]:
+        pg.goto(BASE + path); pg.wait_for_timeout(150)
+        check(pg.is_visible(view) and pg.is_hidden("#create") and pg.text_content(view + " h1") == h1
+              and pg.get_attribute(f'#nav a[data-nav="{path}"]', "aria-current") == "page", f"/{path} is its own page, highlighted in the nav")
+    pg.goto(BASE + "faq/"); pg.wait_for_timeout(120)
+    check(pg.is_visible("#page-faq"), "trailing slash works too")
+    for old, new in [("#how", "guide"), ("#guide", "guide"), ("#faq", "faq"), ("#terms", "terms")]:
+        pg.goto(BASE + old); pg.wait_for_timeout(250)
+        check(pg.url == BASE + new, f"old {old} links redirect to /{new}")
+    wide = b.new_page(viewport={"width": 1440, "height": 900}); wide.goto(BASE + "guide"); wide.wait_for_timeout(150)
+    hs = wide.evaluate("()=>[...document.querySelectorAll('#page-guide .steps-list li')].map(li=>Math.round(li.getBoundingClientRect().height))")
     wide.close()
-    # Fixed: each step is 2-3 lines on desktop (<=122px). Broken (grid): squeezed into a 3rem column, up to ~360px.
-    check(len(hs) == 5 and max(hs) < 150, f"How it works: each step reads as a paragraph on desktop {hs}")
-    pg.goto(BASE + "#how"); pg.wait_for_timeout(120)  # old #how links still land on the Guide
+    # Normal paragraphs: 1-3 lines each on desktop. The old grid bug squeezed text into a 3rem column (up to ~360px).
+    check(len(hs) == 5 and max(hs) < 150, f"guide steps read as paragraphs on desktop {hs}")
     check(pg.get_attribute(".foot .credit", "href") == "https://x.com/404snark_" and "noreferrer" in pg.get_attribute(".foot .credit", "rel")
           and pg.evaluate("()=>document.querySelector('.foot .pfp').naturalWidth") == 26, "footer: created by 404snark_ with pfp, links to X")
-    check("404snark_" in pg.text_content("#faq"), "FAQ: who made zkSEND")
+    links = [(a.strip().lower()) for a in pg.locator(".foot-links a").all_text_contents()]
+    hrefs = [pg.get_attribute(f".foot-links a >> nth={i}", "href") for i in range(len(links))]
+    check(links == ["home", "guide", "faq", "security", "terms", "tip the dev"] and hrefs[:5] == ["/", "/guide", "/faq", "/security", "/terms"] and hrefs[5].startswith("/#k=tip"),
+          "footer has every menu link, like terms")
+    pg.goto(BASE + "security"); pg.wait_for_timeout(120)
+    sec = pg.text_content("#page-security")
+    check(pg.locator("#page-security .tm tbody tr").count() == 7 and all(x in sec for x in ["zkSEND's server", "The hosting provider", "Blockchair", "Chat apps",
+          "The Zcash blockchain", "How it's enforced", "can't protect against", "Report a problem"]), "security page: who-sees-what table, enforcement, limits, reporting")
     icon = pg.evaluate("()=>new Promise(r=>{const i=new Image();i.onload=()=>r([i.naturalWidth,i.naturalHeight]);i.onerror=()=>r(null);i.src=document.querySelector('link[rel=icon]').href})")
     touch = pg.evaluate("()=>new Promise(r=>{const i=new Image();i.onload=()=>r(i.naturalWidth);i.onerror=()=>r(null);i.src=document.querySelector('link[rel=apple-touch-icon]').href})")
     check(icon == [52, 52] and touch == 182, "tab icon is the pfp (52px), home-screen icon 182px")
 
     # ---------- mobile menu ----------
     pg.goto(BASE); pg.wait_for_timeout(100)
-    check(pg.is_hidden("#nav a >> nth=1"), "mobile: menu closed by default")
+    check(pg.is_hidden("#nav a >> nth=1") and pg.is_visible("#create"), "mobile: menu closed by default; home shows the create form")
     pg.click("#menu-toggle"); pg.wait_for_timeout(80)
     check(pg.is_visible("#nav a >> nth=1") and pg.get_attribute("#menu-toggle", "aria-expanded") == "true", "mobile: menu opens")
-    pg.evaluate("()=>{location.hash='guide'}"); pg.wait_for_timeout(120)
-    check(pg.is_hidden("#nav a >> nth=1") and pg.get_attribute('#nav a[data-nav="guide"]', "aria-current") == "page", "mobile: menu closes on navigation, current page highlighted")
-    check([t.strip().lower() for t in pg.locator("#nav a").all_text_contents()][:2] == ["home", "guide"], "nav reads HOME, GUIDE")
+    pg.click('#nav a[data-nav="guide"]'); pg.wait_for_timeout(300)
+    check(pg.url == BASE + "guide" and pg.is_hidden("#nav a >> nth=1") and pg.get_attribute('#nav a[data-nav="guide"]', "aria-current") == "page", "mobile: menu link opens the page, menu closed, highlighted")
+    check([t.strip().lower() for t in pg.locator("#nav a").all_text_contents()] == ["home", "guide", "faq", "security", "terms", "tip the dev"], "nav: home, guide, faq, security, terms, tip the dev")
 
-    # ---------- FAQ promises are on the page, every answer starts collapsed ----------
-    pg.goto(BASE + "#faq"); pg.wait_for_timeout(150)
-    faq = pg.text_content("#faq")
-    check(all(x in faq for x in ["Does zkSEND store any data?", "There is no database", "Can the developers see my payments?",
+    # ---------- FAQ promises; every answer starts collapsed ----------
+    pg.goto(BASE + "faq"); pg.wait_for_timeout(150)
+    faq = pg.text_content("#page-faq")
+    check(all(x in faq for x in ["Does zkSEND store any data?", "There is no database", "Can the developers see my payments?", "Who made zkSEND?", "404snark_",
                                   "no access to any payment, address, amount, memo or transaction", "Does zkSEND ever touch my funds?", "Never."]), "FAQ states: no data stored, devs can't see payments, never touches funds")
-    check(pg.evaluate("()=>[...document.querySelectorAll('#faq details')].every(d=>!d.open)"), "every FAQ answer starts collapsed")
-    check("The short version" not in pg.text_content("#terms"), "terms: short-version line removed")
+    check(pg.locator("#page-faq details").count() == 16 and pg.evaluate("()=>[...document.querySelectorAll('#page-faq details')].every(d=>!d.open)"), "all 16 FAQ answers start collapsed")
+    pg.goto(BASE + "terms"); pg.wait_for_timeout(120)
+    check("The short version" not in pg.text_content("#page-terms"), "terms: short-version line removed")
+    pg.goto(BASE); pg.wait_for_timeout(120)
     check(pg.get_attribute("#r-label", "placeholder") == "privacy", "request 'for' placeholder says privacy")
+    # help popup next to "seal this link"
+    pg.click(".switch[for=r-seal]"); pg.wait_for_timeout(80)
+    check(pg.is_hidden("#seal-help"), "seal help is closed until asked")
+    pg.click("#form-request .help"); pg.wait_for_timeout(200)
+    check(pg.is_visible("#seal-help") and "Only people with the code" in pg.text_content("#seal-help"), "circled ? opens the sealed-link explanation")
+    pg.click("#seal-help .act"); pg.wait_for_timeout(150)
+    check(pg.is_hidden("#seal-help"), "'got it' closes it")
+    pg.click("#form-request .help"); pg.wait_for_timeout(150); pg.keyboard.press("Escape"); pg.wait_for_timeout(150)
+    check(pg.is_hidden("#seal-help"), "Escape closes it too")
 
     other = b.new_page(); other.goto(BASE); other.wait_for_timeout(100)
     check(other.evaluate("()=>fetch('https://example.com/x').then(()=>'sent',()=>'blocked')") == "blocked", "the page can't contact any other site")

@@ -286,3 +286,179 @@ select { width: 100%; font: 400 1rem/1.5 var(--mono); color: var(--ink); backgro
 select:focus { outline: none; border-color: var(--green-2); }
 .noir-missing a { color: var(--green); }
 .noir-missing { margin-top: .6rem; }
+
+/* ---------------- sealed links ---------------- */
+.seal-opt { margin-top: 1.5rem; padding-top: 1.1rem; border-top: 1px dashed var(--line); }
+.switch { display: inline-flex; align-items: center; gap: .8rem; margin: 0; cursor: pointer; color: var(--text);
+  font-size: .85rem; text-transform: uppercase; letter-spacing: .18em; }
+.switch input { position: absolute; opacity: 0; width: 1px; height: 1px; }
+.track-sw { position: relative; width: 2.6rem; height: 1.35rem; border: 1px solid var(--line); background: var(--panel); flex: none; transition: background .2s, border-color .2s; }
+.track-sw::after { content: ""; position: absolute; top: 2px; left: 2px; width: calc(1.35rem - 6px); height: calc(1.35rem - 6px); background: var(--dim); transition: transform .2s, background .2s; }
+.switch input:checked + .track-sw { border-color: var(--green-2); background: var(--panel-hi); }
+.switch input:checked + .track-sw::after { transform: translateX(1.25rem); background: var(--green); box-shadow: 0 0 8px rgba(143, 240, 164, .6); }
+.switch input:focus-visible + .track-sw { outline: 1px solid var(--green); outline-offset: 3px; }
+.switch input:checked ~ .switch-label { color: var(--green); }
+.switch input:disabled ~ * { opacity: .45; cursor: not-allowed; }
+@media (prefers-reduced-motion: reduce) { .track-sw, .track-sw::after { transition: none; } }
+.seal-why { margin-top: .5rem; }
+.seal-code label { margin-top: 1rem; }
+.code-row { display: flex; gap: .6rem; align-items: stretch; flex-wrap: wrap; }
+.code-row input { flex: 1 1 9rem; min-width: 0; font-family: var(--mono); letter-spacing: .06em; color: var(--gold); }
+.code-big { flex: 1 1 11rem; display: flex; align-items: center; padding: .6rem .9rem; border: 1px solid #4a3b10; background: #0d0a02;
+  color: var(--gold); font-size: 1.1rem; letter-spacing: .16em; word-break: break-all; }
+.code-small { color: var(--gold); font-size: .8rem; letter-spacing: .1em; }
+.sealed-out { margin-top: .5rem; }
+.sealed-badge { margin: -.4rem 0 1rem; color: var(--gold); font-size: .72rem; text-transform: uppercase; letter-spacing: .16em; }
+.unlock { max-width: 34rem; }
+.unlock h1 { font-size: clamp(1.6rem, 5vw, 2.2rem); text-shadow: 0 0 18px rgba(143, 240, 164, .28); }
+#unlock-code { font-family: var(--mono); letter-spacing: .14em; color: var(--gold); font-size: 1.1rem; }
+.sealed-out { margin-top: 1.25rem; padding-top: 1rem; border-top: 1px dashed var(--line); }
+.sealed-out label { margin-top: 0; }
+.code-new { flex: none; width: 3rem; padding: 0; font-size: 1.1rem; }
+@media (max-width: 24rem) { .code-row input { letter-spacing: 0; font-size: .95rem; padding-inline: .7rem; } .code-big { font-size: 1rem; letter-spacing: .08em; } }
+
+/* ---------------- pages: guide, faq, security, terms ---------------- */
+.page { max-width: 54rem; }
+.page-head { padding-bottom: 2.25rem; margin-bottom: .5rem; border-bottom: 1px solid var(--rule); }
+.page-head h1 { font-size: clamp(2.6rem, 8vw, 4.4rem); margin-bottom: 1.1rem; }
+.page-lede { margin: 0; max-width: 46ch; color: var(--ink); font-size: clamp(1.05rem, 2.4vw, 1.3rem); line-height: 1.55; }
+.page-sec { padding: 2.25rem 0; border-bottom: 1px solid var(--rule); }
+.page-sec:last-child { border-bottom: 0; }
+.page-sec > h2 { font-size: 1.35rem; margin-bottom: 1.1rem; text-shadow: none; }
+.page-sec > p { margin: 0; max-width: 64ch; color: var(--muted); line-height: 1.85; letter-spacing: .02em; }
+.page-sec a { color: var(--green); }
+.steps-list { list-style: none; margin: 0; padding: 0; counter-reset: st; }
+.steps-list li { counter-increment: st; position: relative; padding: 1rem 0 1rem 3.25rem; border-top: 1px solid var(--rule); color: var(--muted); line-height: 1.8; }
+.steps-list li:first-child { border-top: 0; padding-top: 0; }
+.steps-list li::before { content: counter(st, decimal-leading-zero); position: absolute; left: 0; top: 1rem; color: var(--green-2); letter-spacing: .1em; }
+.steps-list li:first-child::before { top: 0; }
+.steps-list strong, .dash-list strong { color: var(--ink); font-weight: 400; }
+.dash-list { list-style: none; margin: 0; padding: 0; }
+.dash-list li { position: relative; padding: .55rem 0 .55rem 1.6rem; color: var(--muted); line-height: 1.8; }
+.dash-list li::before { content: "—"; position: absolute; left: 0; color: var(--green-2); }
+.faq-list details:first-child { padding-top: 0; }
+.faq-list details:last-child { border-bottom: 0; }
+.table-wrap { overflow-x: auto; border: 1px solid var(--line); }
+.tm { width: 100%; border-collapse: collapse; font-size: .88rem; line-height: 1.65; }
+.tm th, .tm td { text-align: left; vertical-align: top; padding: .9rem 1rem; border-bottom: 1px solid var(--rule); }
+.tm tr:last-child th, .tm tr:last-child td { border-bottom: 0; }
+.tm thead th { color: var(--dim); font-weight: 400; font-size: .7rem; text-transform: uppercase; letter-spacing: .2em; background: var(--panel); }
+.tm tbody th { color: var(--ink); font-weight: 400; width: 26%; }
+.tm tbody th .opt { display: block; margin-top: .2rem; font-size: .72rem; color: var(--dim); }
+.tm td { color: var(--muted); }
+.tm td:nth-child(3) { color: var(--green-2); }
+@media (max-width: 40rem) {
+  /* the table becomes stacked cards on phones */
+  .table-wrap { border: 0; overflow: visible; }
+  .tm, .tm tbody, .tm tr, .tm th, .tm td { display: block; width: 100%; }
+  .tm thead { display: none; }
+  .tm tr { border: 1px solid var(--line); margin-bottom: .75rem; }
+  .tm tbody th { width: auto; background: var(--panel); border-bottom: 1px solid var(--rule); }
+  .tm td { border-bottom: 1px solid var(--rule); }
+  .tm td::before { display: block; margin-bottom: .25rem; color: var(--dim); font-size: .66rem; text-transform: uppercase; letter-spacing: .2em; }
+  .tm td:nth-child(2)::before { content: "can see"; }
+  .tm td:nth-child(3)::before { content: "can't see"; }
+}
+
+/* ---------------- help button + popup ---------------- */
+.seal-row { display: flex; align-items: center; gap: .9rem; }
+.help { display: inline-flex; align-items: center; justify-content: center; width: 1.7rem; height: 1.7rem; padding: 0; border-radius: 50%;
+  border: 1px solid var(--line); background: var(--panel); color: var(--muted); font: 700 .85rem/1 var(--mono); cursor: pointer; flex: none; }
+.help:hover, .help:focus-visible { color: var(--green); border-color: var(--green-2); }
+.pop { width: min(30rem, calc(100vw - 2rem)); max-height: calc(100vh - 2rem); overflow: auto; margin: auto; padding: 1.6rem 1.6rem 1.4rem;
+  background: #020603; color: var(--text); border: 1px solid var(--green-2); box-shadow: 0 0 0 1px rgba(79, 208, 122, .15), 0 20px 60px rgba(0, 0, 0, .8), 0 0 40px rgba(79, 208, 122, .12); }
+.pop::backdrop { background: rgba(0, 0, 0, .72); }
+.pop h2 { font-size: 1.25rem; margin: 0 0 .9rem; }
+.pop > p { margin: 0 0 .75rem; color: var(--muted); line-height: 1.8; font-size: .92rem; }
+.pop .dash-list li { font-size: .88rem; padding: .4rem 0 .4rem 1.5rem; }
+.pop .act { margin-top: 1rem; }
+.pop:not(:popover-open):not(.pop-open) { display: none; }
+.pop.pop-open { display: block; position: fixed; inset: 0; z-index: 100; }
+
+/* ---------------- footer links ---------------- */
+.foot { flex-direction: column; align-items: stretch; gap: .9rem; }
+.foot-top { display: flex; align-items: baseline; gap: .75rem 2rem; flex-wrap: wrap; }
+.foot-mark { color: var(--ink); letter-spacing: .28em; font-weight: 700; }
+.foot-links { display: flex; flex-wrap: wrap; gap: .5rem 1.6rem; }
+.foot-links a { color: var(--dim); text-decoration: none; text-transform: uppercase; letter-spacing: .2em; font-size: .72rem; }
+.foot-links a:hover, .foot-links a:focus-visible { color: var(--green); }
+.foot-note { color: var(--dim); }
+.foot .credit { margin-left: 0; }
+
+/* =====================================================================
+   Fluid sizing: one base size scales smoothly from phones to large monitors.
+   Everything else is in rem, so text, spacing and layout widths follow it.
+   It starts from the browser's own default, so a user's larger-text setting still applies.
+   ===================================================================== */
+html {
+  font-size: clamp(1rem, 0.9rem + 0.32vw, 1.2rem); /* 16px on phones, ~18.5px at 1280, 19.2px on large screens */
+  -webkit-text-size-adjust: 100%; text-size-adjust: 100%;
+}
+/* Keep content clear of notches and rounded corners (landscape phones). */
+.top-inner, main, .devtip, .foot {
+  padding-left: max(1.5rem, env(safe-area-inset-left, 0px));
+  padding-right: max(1.5rem, env(safe-area-inset-right, 0px));
+}
+/* iPhone Safari zooms the whole page when a field's text is under 16px. Never let that happen. */
+input, textarea, select, .code-row input, #unlock-code { font-size: max(16px, 1rem); }
+textarea { font-size: max(16px, .85rem); line-height: 1.45; }
+/* Long links and codes wrap instead of pushing the page sideways. */
+.page-sec code, details > p code, .block code { overflow-wrap: anywhere; word-break: break-all; }
+img, svg { max-width: 100%; }
+/* Stepper: full labels normally, short ones on narrow phones; never below a readable size. */
+.steps .ls { display: none; }
+.steps li { font-size: max(11px, .66rem); }
+/* Comfortable tap targets. */
+.help { width: 2.5rem; height: 2.5rem; font-size: 1rem; }
+.switch { min-height: 2.75rem; }
+.menu { padding: .8rem .55rem; min-height: 2.75rem; }
+
+@media (max-width: 52rem) {
+  .top-inner, main, .devtip, .foot {
+    padding-left: max(1.1rem, env(safe-area-inset-left, 0px));
+    padding-right: max(1.1rem, env(safe-area-inset-right, 0px));
+  }
+  .fields .act { min-height: 2.6rem; padding: .4rem .8rem; }
+  .act { min-height: 2.75rem; }
+  .steps li { font-size: 11px; letter-spacing: .06em; padding: .7rem .15rem; }
+}
+@media (max-width: 30rem) {
+  .steps .l { display: none; }
+  .steps .ls { display: inline; }
+  .steps li { letter-spacing: .04em; }
+  .page-head h1 { font-size: clamp(2.2rem, 11vw, 3rem); }
+  .title { font-size: clamp(1.9rem, 9vw, 2.6rem); }
+  .lede { font-size: 1.2rem; }
+}
+/* Landscape phones: short screens get a slimmer header so content has room. */
+@media (max-height: 30rem) and (orientation: landscape) {
+  .top-inner { min-height: 3.25rem; padding-top: .35rem; padding-bottom: .35rem; }
+  .intro { margin-bottom: 2rem; }
+  .logotype { margin-bottom: 1.5rem; width: min(100%, 26rem); }
+}
+/* Touch screens (any width, including landscape phones and tablets) get thumb-sized controls. */
+@media (pointer: coarse), (max-width: 60rem) {
+  .fields .act { min-height: 2.6rem; padding: .4rem .8rem; }
+  .act { min-height: 2.75rem; }
+}
+/* Header items never wrap onto extra lines. */
+.top nav a, .top-cta, .wordmark { white-space: nowrap; }
+.cta-short { display: none; }
+@media (max-width: 23rem) { .cta-long { display: none; } .cta-short { display: inline; } }
+/* Large monitors: let the scale keep growing a little further. */
+html { font-size: clamp(1rem, 0.9rem + 0.32vw, 1.35rem); }
+/* The full desktop menu needs about 1,000px. Below ~1,056px use the menu button instead. */
+@media (max-width: 66rem) {
+  .top-inner { gap: .9rem; }
+  .divider { display: none; }
+  .menu { display: flex; margin-left: .25rem; }
+  .top-cta { margin-left: auto; }
+  .top nav { position: absolute; top: 100%; left: 0; right: 0; flex-direction: column; gap: 0; background: var(--bg);
+    border-bottom: 1px solid var(--line); padding: .5rem max(1.1rem, env(safe-area-inset-left, 0px)) 1rem; display: none; }
+  .top.open nav { display: flex; }
+  .top nav a { padding: .9rem 0; border-bottom: 1px solid var(--rule); }
+}
+@media (max-width: 52rem) {
+  .wordmark em { display: none; }
+  .top-cta { flex: 1; margin-left: 0; justify-content: flex-start; }
+}

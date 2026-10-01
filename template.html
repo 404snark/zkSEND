@@ -16,16 +16,17 @@
 <div id="app">
 <header class="top">
   <div class="top-inner">
-    <a class="wordmark" href="#"><strong>zkSEND</strong><em>beta</em></a>
+    <a class="wordmark" href="/"><strong>zkSEND</strong><em>beta</em></a>
     <span class="divider" aria-hidden="true"></span>
     <nav id="nav" aria-label="Sections">
-      <a href="#" data-nav="home">home</a>
-      <a href="#guide" data-nav="guide">guide</a>
-      <a href="#faq" data-nav="faq">faq</a>
-      <a href="#terms" data-nav="terms">terms</a>
-      <a href="#" id="nav-tip" data-nav="tip">tip the dev</a>
+      <a href="/" data-nav="home">home</a>
+      <a href="/guide" data-nav="guide">guide</a>
+      <a href="/faq" data-nav="faq">faq</a>
+      <a href="/security" data-nav="security">security</a>
+      <a href="/terms" data-nav="terms">terms</a>
+      <a href="/" id="nav-tip" data-nav="tip">tip the dev</a>
     </nav>
-    <a class="act solid top-cta" href="#request"><span class="dot" aria-hidden="true"></span>new request</a>
+    <a class="act solid top-cta" href="/#request" aria-label="new request"><span class="dot" aria-hidden="true"></span><span class="cta-long">new request</span><span class="cta-short" aria-hidden="true">new</span></a>
     <button class="menu" type="button" id="menu-toggle" aria-expanded="false" aria-controls="nav" aria-label="Menu"><span></span><span></span><span></span></button>
   </div>
 </header>
@@ -70,6 +71,18 @@
       </select>
       <p class="label">memo the payer sends</p>
       <p class="memo-row"><code id="r-memo" class="memo"></code><button type="button" class="act" id="r-regen"><span aria-hidden="true">↻</span>new memo</button></p>
+
+      <div class="seal-opt">
+        <div class="seal-row">
+          <label class="switch" for="r-seal"><input type="checkbox" id="r-seal" role="switch"><span class="track-sw" aria-hidden="true"></span><span class="switch-label">seal this link</span></label>
+          <button type="button" class="help" popovertarget="seal-help" aria-label="What is a sealed link?">?</button>
+        </div>
+        <p class="hint seal-why" hidden></p>
+        <div class="seal-code" id="r-seal-box" hidden>
+          <label for="r-code">unlock code <span class="opt">generated, or type your own: 8 to 12 letters or numbers</span></label>
+          <div class="code-row"><input id="r-code" class="code-input" spellcheck="false" autocomplete="off" autocapitalize="characters" inputmode="text" maxlength="14"><button type="button" class="act code-new" id="r-code-new" aria-label="generate a new code" title="new code"><span aria-hidden="true">↻</span></button></div>
+        </div>
+      </div>
       <p class="error" id="r-error" role="alert"></p>
       <div class="row">
         <button class="act solid" type="submit">create link<span aria-hidden="true">→</span></button>
@@ -82,6 +95,11 @@
       <div class="row">
         <button class="act solid" type="button" data-copy-from="r-link"><span aria-hidden="true">□</span>copy link</button>
         <a class="act" id="r-open" target="_blank" rel="noopener noreferrer"><span aria-hidden="true">▣</span>preview</a>
+      </div>
+      <div class="sealed-out" id="r-sealed-out" hidden>
+        <label for="r-code-out">unlock code</label>
+        <div class="code-row"><code class="code-big" id="r-code-out"></code><button class="act" type="button" data-copy-from="r-code-out"><span aria-hidden="true">□</span>copy code</button></div>
+        <p class="hint">Send the code separately from the link: a different app, a call, or in person. Anyone with both can open it; anyone with only one sees nothing.</p>
       </div>
       <p class="hint">Keep the memo. It's how you'll spot this payment in your wallet history.</p>
       <details class="embed">
@@ -109,6 +127,18 @@
         <div><label for="t-presets">suggested amounts <span class="opt">ZEC</span></label>
           <input id="t-presets" autocomplete="off" inputmode="decimal" value="0.01 0.05 0.1"></div>
       </div>
+
+      <div class="seal-opt">
+        <div class="seal-row">
+          <label class="switch" for="t-seal"><input type="checkbox" id="t-seal" role="switch"><span class="track-sw" aria-hidden="true"></span><span class="switch-label">seal this link</span></label>
+          <button type="button" class="help" popovertarget="seal-help" aria-label="What is a sealed link?">?</button>
+        </div>
+        <p class="hint seal-why" hidden></p>
+        <div class="seal-code" id="t-seal-box" hidden>
+          <label for="t-code">unlock code <span class="opt">generated, or type your own: 8 to 12 letters or numbers</span></label>
+          <div class="code-row"><input id="t-code" class="code-input" spellcheck="false" autocomplete="off" autocapitalize="characters" inputmode="text" maxlength="14"><button type="button" class="act code-new" id="t-code-new" aria-label="generate a new code" title="new code"><span aria-hidden="true">↻</span></button></div>
+        </div>
+      </div>
       <p class="error" id="t-error" role="alert"></p>
       <div class="row">
         <button class="act solid" type="submit">create tip link<span aria-hidden="true">→</span></button>
@@ -121,6 +151,11 @@
       <div class="row">
         <button class="act solid" type="button" data-copy-from="t-link"><span aria-hidden="true">□</span>copy link</button>
         <a class="act" id="t-open" target="_blank" rel="noopener noreferrer"><span aria-hidden="true">▣</span>preview</a>
+      </div>
+      <div class="sealed-out" id="t-sealed-out" hidden>
+        <label for="t-code-out">unlock code</label>
+        <div class="code-row"><code class="code-big" id="t-code-out"></code><button class="act" type="button" data-copy-from="t-code-out"><span aria-hidden="true">□</span>copy code</button></div>
+        <p class="hint">Send the code separately from the link: a different app, a call, or in person. Anyone with both can open it; anyone with only one sees nothing.</p>
       </div>
       <details class="embed">
         <summary>put a pay button on your site or post</summary>
@@ -147,6 +182,18 @@
           <input id="b-memo" autocomplete="off" maxlength="120" placeholder="paid via zkSEND"></div>
       </div>
       <p class="summary" id="b-summary" aria-live="polite"></p>
+
+      <div class="seal-opt">
+        <div class="seal-row">
+          <label class="switch" for="b-seal"><input type="checkbox" id="b-seal" role="switch"><span class="track-sw" aria-hidden="true"></span><span class="switch-label">seal this link</span></label>
+          <button type="button" class="help" popovertarget="seal-help" aria-label="What is a sealed link?">?</button>
+        </div>
+        <p class="hint seal-why" hidden></p>
+        <div class="seal-code" id="b-seal-box" hidden>
+          <label for="b-code">unlock code <span class="opt">generated, or type your own: 8 to 12 letters or numbers</span></label>
+          <div class="code-row"><input id="b-code" class="code-input" spellcheck="false" autocomplete="off" autocapitalize="characters" inputmode="text" maxlength="14"><button type="button" class="act code-new" id="b-code-new" aria-label="generate a new code" title="new code"><span aria-hidden="true">↻</span></button></div>
+        </div>
+      </div>
       <p class="error" id="b-error" role="alert"></p>
       <ul class="errors" id="b-errors"></ul>
       <div class="row">
@@ -160,6 +207,11 @@
       <div class="row">
         <button class="act solid" type="button" data-copy-from="b-link"><span aria-hidden="true">□</span>copy link</button>
         <a class="act" id="b-open" target="_blank" rel="noopener noreferrer"><span aria-hidden="true">▣</span>preview</a>
+      </div>
+      <div class="sealed-out" id="b-sealed-out" hidden>
+        <label for="b-code-out">unlock code</label>
+        <div class="code-row"><code class="code-big" id="b-code-out"></code><button class="act" type="button" data-copy-from="b-code-out"><span aria-hidden="true">□</span>copy code</button></div>
+        <p class="hint">Send the code separately from the link: a different app, a call, or in person. Anyone with both can open it; anyone with only one sees nothing.</p>
       </div>
       <p class="hint">Open it yourself to pay, or send it to whoever holds the funds. Anyone with this link can see the addresses and amounts, so share it privately.</p>
       <details class="embed">
@@ -175,47 +227,183 @@
     </form>
   </div>
 
-  <section id="guide" class="block">
-    <h2>Guide</h2>
-    <ol>
-      <li><strong>Pick what you need.</strong> A <em>request</em> for one payment, a <em>tip jar</em> link you can pin anywhere, or <em>pay many</em> to pay a list of people at once.</li>
-      <li><strong>Paste a shielded address.</strong> zkSEND checks it for typos. Transparent addresses are refused.</li>
-      <li><strong>Share the link.</strong> Everything after the # stays in the browser. The server only ever delivers this page.</li>
-      <li><strong>The payer taps "open in wallet" or scans the QR code.</strong> Amount and memo are filled in for them.</li>
-      <li><strong>Tap "I sent it" and watch it complete.</strong> Paste the transaction ID and the progress bar follows it from searching, through 10 confirmations, to complete. Share the tracking link so the other person sees it too.</li>
-    </ol>
-  </section>
-
-  <section id="faq" class="block">
-    <h2>FAQ</h2>
-    <details><summary>Does zkSEND store any data?</summary><p>No. There is no database and no account system. zkSEND saves nothing about you or your payments: no addresses, amounts, memos, messages or transaction IDs. Every request, tip jar and tracking link carries its own details inside the link, after the #, and browsers never send that part to our server.</p></details>
-    <details><summary>Can the developers see my payments?</summary><p>No. The developers have no access to any payment, address, amount, memo or transaction, because none of it ever reaches zkSEND's server. The one thing that exists, as with any website, is the hosting provider's basic connection log: when the page was loaded, from which IP address, with which browser. It never contains payment details. The developer can see that log in the hosting dashboard; use Tor if you'd rather not share your IP.</p></details>
-    <details><summary>Does zkSEND ever touch my funds?</summary><p>Never. Payments go straight from the payer's wallet to the recipient's wallet. zkSEND only builds the payment link. It never holds keys or funds, can't move or freeze money, and takes no fees.</p></details>
-    <details><summary>How does the progress bar work?</summary><p>After paying, tap "I sent it" and paste the transaction ID from your wallet's history. The page then goes from searching the network, to confirming (1 to 10), to complete. The progress lives only in your browser tab and the link. Send the tracking link to the other person, and they can watch the same progress.</p></details>
-    <details><summary>Why do I have to paste a transaction ID?</summary><p>Shielded payments hide who paid whom, how much, and the memo, from everyone except the recipient's wallet. That includes zkSEND. Sites that find your payment automatically can do it because they are the recipient and hold their own viewing key. zkSEND isn't, and doesn't want your keys, so it follows the one thing that's public: the transaction ID.</p></details>
-    <details><summary>What happens to tracking data when a payment completes?</summary><p>There's nothing on our side to delete, because nothing was ever stored. Tracking stops at 10 confirmations. "Clear this page" removes the payment from your address bar, and an open tab clears itself 4 hours after completion. Copies of the link you sent someone stay in that chat until you delete the message.</p></details>
-    <details><summary>What if a payment doesn't go through?</summary><p>If a payment isn't confirmed within about an hour, it expires and the funds become spendable in the payer's wallet again. The progress bar will say it can't find it. The only risk is paying twice while the first one is still pending, so wait before retrying.</p></details>
-    <details><summary>Which wallets work with zkSEND?</summary><p>Any Zcash wallet that can scan a QR code or send to a shielded address with a memo, which covers all the major ones. "Open in wallet app" works with wallets that register Zcash payment links on your device, including current versions of Zodl on iPhone and Android. If nothing opens, update your wallet or scan the QR code from inside it. On a computer with the Noir browser wallet installed, a "pay with Noir" button appears, and the progress bar starts by itself after you pay.</p></details>
-    <details><summary>Does "pay many" really send one transaction?</summary><p>Yes, if your wallet supports multi-payment links (ZIP 321). If yours opens only the first payment, use "pay this one" for each person instead; the list lets you tick them off as you go.</p></details>
-    <details><summary>Can I use this for checkout on my shop?</summary><p>Yes. Create a request, open "put a pay button on your site", and paste the HTML. Shops can also build links themselves: <code>#u=ADDRESS&amp;a=AMOUNT&amp;m=ORDER-ID&amp;n=LABEL&amp;x=EXPIRY</code>, where <code>x</code> is an optional expiry time in Unix seconds. Use a fresh address per order, and match payments by the order ID in the memo.</p></details>
-    <details><summary>Who made zkSEND?</summary><p>zkSEND was created by <a href="https://x.com/404snark_" target="_blank" rel="noopener noreferrer">404snark_</a>, for the Zcash community. It's free, and if it's useful to you there's an optional "tip the dev" button at the bottom of every page.</p></details>
-    <details><summary>Is there a fee?</summary><p>No. zkSEND takes nothing from any payment. If it's useful to you, there's an optional "tip the dev" button at the bottom of every page.</p></details>
-    <details><summary>Why did I get a "checking your browser" page?</summary><p>Too many requests arrived from your network, or the site is under load. Your browser solves a small puzzle to prove it isn't a script. No third-party captcha is involved. The pass it earns is tied to your network for an hour and isn't recorded anywhere.</p></details>
-    <details><summary>Who can make a link on this site?</summary><p>Anyone, and zkSEND can't vouch for who made one. Before paying, check with the person asking that the address starts and ends the way the pay page shows.</p></details>
-    <details><summary>What still links me to a payment?</summary><p>The app you paste a link into can read it. So can your browser history and anything that syncs it. Reusing one address, your writing style, and paying from a wallet you also use personally can also connect the dots. Tor or a separate browser profile helps with the IP address.</p></details>
-  </section>
-
-  <section id="terms" class="block">
-    <h2>Terms</h2>
-    <p>zkSEND builds payment links in your browser. It never holds keys or funds, and it isn't a party, escrow or broker to any payment.</p>
-    <p>A confirmed Zcash transaction can't be reversed. Check addresses and amounts before you send.</p>
-    <p>The page is provided as-is, with no uptime promise. If it goes offline, nothing you own is affected.</p>
-  </section>
 </section>
 
 <!-- ================= pay: one request, and its tracking view ================= -->
+<div popover id="seal-help" class="pop" role="dialog" aria-labelledby="seal-help-title">
+  <p class="kicker">sealed links</p>
+  <h2 id="seal-help-title">Only people with the code can read it</h2>
+  <p>A sealed link is encrypted with a code. Chat apps, link previews and browser history only see scrambled text. Without the code, nobody can read the address, amount or memo.</p>
+  <ul class="dash-list">
+    <li>Send the link and the code separately: the link in a DM, the code by voice or in another app.</li>
+    <li>The generated 12-character code is the strongest. Your own code can be 8 to 12 letters or numbers. Longer is safer, and avoid words or dates.</li>
+    <li>Everything is encrypted on your device. The code never leaves it.</li>
+  </ul>
+  <button type="button" class="act solid" popovertarget="seal-help" popovertargetaction="hide">got it</button>
+</div>
+
+<!-- ================= pages ================= -->
+<section id="page-guide" class="page" hidden>
+  <header class="page-head">
+    <p class="kicker">guide</p>
+    <h1>How zkSEND works</h1>
+    <p class="page-lede">Make a link, share it, get paid. Everything happens in your browser, and the payment goes straight from one wallet to another.</p>
+  </header>
+  <section class="page-sec">
+    <h2>Get paid</h2>
+    <ol class="steps-list">
+      <li><strong>Paste a shielded address.</strong> Use a fresh one from your wallet for each request. zkSEND checks it for typos and refuses transparent addresses.</li>
+      <li><strong>Add an amount and what it's for.</strong> Both are optional. A private memo like ZECINV-ab12cd is made for you, and the link expires after 24 hours unless you choose otherwise.</li>
+      <li><strong>Share the link.</strong> Everything about the payment lives after the # in the link, which browsers never send to the server.</li>
+      <li><strong>The payer scans the QR code or taps "open in wallet".</strong> The address, amount and memo are filled in for them. Noir users can pay in one click.</li>
+      <li><strong>Watch it complete.</strong> The payer taps "I sent it" and pastes the transaction ID. A progress bar follows the payment through 10 confirmations, and either of you can open the same tracking link.</li>
+    </ol>
+  </section>
+  <section class="page-sec">
+    <h2>Tip jars</h2>
+    <p>A permanent link you can pin in a bio or on a site. Tippers pick an amount and can add a private message, which travels in the encrypted memo. Tip links never expire; if you change address, make a new link and update it everywhere you posted the old one.</p>
+  </section>
+  <section class="page-sec">
+    <h2>Pay many</h2>
+    <p>For payroll, bounties and payouts. Paste one line per person (address, amount, memo), straight from a spreadsheet if you like, and pay everyone in a single shielded transaction. If a wallet can't do multi-payment links, pay one person at a time from the same page. After paying, each person gets their own tracking link that shows only their payment.</p>
+  </section>
+  <section class="page-sec">
+    <h2>Sealed links</h2>
+    <p>Turn on "seal this link" and the whole link is encrypted with a code, so chat apps, link previews and browser history only see scrambled text. Send the code separately: a different app, a call, or in person. Tracking links made from a sealed link stay sealed with the same code.</p>
+  </section>
+  <section class="page-sec">
+    <h2>Checkout and pay buttons</h2>
+    <p>Every link comes with a ready-made HTML button for a site and a Markdown link for Discord or GitHub. Shops can also build links themselves; see the FAQ for the format.</p>
+  </section>
+</section>
+
+<section id="page-faq" class="page" hidden>
+  <header class="page-head">
+    <p class="kicker">faq</p>
+    <h1>Questions</h1>
+    <p class="page-lede">Short answers about privacy, payments and how zkSEND works.</p>
+  </header>
+  <section class="page-sec">
+    <h2>Privacy</h2>
+    <div class="faq-list">
+      <details><summary>Does zkSEND store any data?</summary><p>No. There is no database and no account system. zkSEND saves nothing about you or your payments: no addresses, amounts, memos, messages or transaction IDs. Every request, tip jar and tracking link carries its own details inside the link, after the #, and browsers never send that part to our server.</p></details>
+      <details><summary>Can the developers see my payments?</summary><p>No. The developers have no access to any payment, address, amount, memo or transaction, because none of it ever reaches zkSEND's server. The one thing that exists, as with any website, is the hosting provider's basic connection log: when the page was loaded, from which IP address, with which browser. It never contains payment details. The developer can see that log in the hosting dashboard; use Tor if you'd rather not share your IP.</p></details>
+      <details><summary>Does zkSEND ever touch my funds?</summary><p>Never. Payments go straight from the payer's wallet to the recipient's wallet. zkSEND only builds the payment link. It never holds keys or funds, can't move or freeze money, and takes no fees.</p></details>
+      <details><summary>What is a sealed link?</summary><p>A link that's encrypted with a code, so only people with the code can see what's inside. Chat apps, link previews, browser history and zkSEND's server only ever see scrambled text. Send the link and the code separately, for example the link in a DM and the code by voice. Everything is encrypted and decrypted on your device with AES-256, and the code never leaves it. The generated code is 12 characters; you can also choose your own of 8 to 12. Payment links, tip jars and pay-many lists can all be sealed, and tracking links made from a sealed link stay sealed with the same code.</p></details>
+      <details><summary>What still links me to a payment?</summary><p>The app you paste a link into can read it. So can your browser history and anything that syncs it. Reusing one address, your writing style, and paying from a wallet you also use personally can also connect the dots. Tor or a separate browser profile helps with the IP address.</p></details>
+      <details><summary>Why did I get a "checking your browser" page?</summary><p>Too many requests arrived from your network, or the site is under load. Your browser solves a small puzzle to prove it isn't a script. No third-party captcha is involved. The pass it earns is tied to your network for an hour and isn't recorded anywhere.</p></details>
+    </div>
+  </section>
+  <section class="page-sec">
+    <h2>Payments</h2>
+    <div class="faq-list">
+      <details><summary>How does the progress bar work?</summary><p>After paying, tap "I sent it" and paste the transaction ID from your wallet's history. The page then goes from searching the network, to confirming (1 to 10), to complete. The progress lives only in your browser tab and the link. Send the tracking link to the other person, and they can watch the same progress.</p></details>
+      <details><summary>Why do I have to paste a transaction ID?</summary><p>Shielded payments hide who paid whom, how much, and the memo, from everyone except the recipient's wallet. That includes zkSEND. Sites that find your payment automatically can do it because they are the recipient and hold their own viewing key. zkSEND isn't, and doesn't want your keys, so it follows the one thing that's public: the transaction ID.</p></details>
+      <details><summary>What happens to tracking data when a payment completes?</summary><p>There's nothing on our side to delete, because nothing was ever stored. Tracking stops at 10 confirmations. "Clear this page" removes the payment from your address bar, and an open tab clears itself 4 hours after completion. Copies of the link you sent someone stay in that chat until you delete the message.</p></details>
+      <details><summary>What if a payment doesn't go through?</summary><p>If a payment isn't confirmed within about an hour, it expires and the funds become spendable in the payer's wallet again. The progress bar will say it can't find it. The only risk is paying twice while the first one is still pending, so wait before retrying.</p></details>
+      <details><summary>Which wallets work with zkSEND?</summary><p>Any Zcash wallet that can scan a QR code or send to a shielded address with a memo, which covers all the major ones. "Open in wallet app" works with wallets that register Zcash payment links on your device, including current versions of Zodl on iPhone and Android. If nothing opens, update your wallet or scan the QR code from inside it. On a computer with the Noir browser wallet installed, a "pay with Noir" button appears, and the progress bar starts by itself after you pay.</p></details>
+      <details><summary>Does "pay many" really send one transaction?</summary><p>Yes, if your wallet supports multi-payment links (ZIP 321). If yours opens only the first payment, use "pay this one" for each person instead; the list lets you tick them off as you go.</p></details>
+      <details><summary>Can I use this for checkout on my shop?</summary><p>Yes. Create a request, open "put a pay button on your site", and paste the HTML. Shops can also build links themselves: <code>https://zksend.net/#u=ADDRESS&amp;a=AMOUNT&amp;m=ORDER-ID&amp;n=LABEL&amp;x=EXPIRY</code>, where <code>x</code> is an optional expiry time in Unix seconds. Use a fresh address per order, and match payments by the order ID in the memo.</p></details>
+      <details><summary>Is there a fee?</summary><p>No. zkSEND takes nothing from any payment. If it's useful to you, there's an optional "tip the dev" button at the bottom of every page.</p></details>
+    </div>
+  </section>
+  <section class="page-sec">
+    <h2>About</h2>
+    <div class="faq-list">
+      <details><summary>Who made zkSEND?</summary><p>zkSEND was created by <a href="https://x.com/404snark_" target="_blank" rel="noopener noreferrer">404snark_</a>, for the Zcash community. It's free, and if it's useful to you there's an optional "tip the dev" button at the bottom of every page.</p></details>
+      <details><summary>Who can make a link on this site?</summary><p>Anyone, and zkSEND can't vouch for who made one. Before paying, check with the person asking that the address starts and ends the way the pay page shows.</p></details>
+    </div>
+  </section>
+</section>
+
+<section id="page-security" class="page" hidden>
+  <header class="page-head">
+    <p class="kicker">security</p>
+    <h1>Threat model</h1>
+    <p class="page-lede">What zkSEND protects, exactly who can see what, and what it can't protect you from.</p>
+  </header>
+  <section class="page-sec">
+    <h2>In short</h2>
+    <ul class="dash-list">
+      <li>Payment details live only inside the link, after the #. Browsers never send that part to any server.</li>
+      <li>zkSEND has no database, no accounts and no analytics, and writes no request logs.</li>
+      <li>zkSEND never holds keys or funds. Payments go directly from wallet to wallet.</li>
+      <li>Sealed links hide the details even from the apps the link passes through.</li>
+    </ul>
+  </section>
+  <section class="page-sec">
+    <h2>Who sees what</h2>
+    <div class="table-wrap">
+      <table class="tm">
+        <thead><tr><th scope="col">who</th><th scope="col">can see</th><th scope="col">can't see</th></tr></thead>
+        <tbody>
+          <tr><th scope="row">zkSEND's server</th><td>That the page was loaded. Your IP exists only in memory, as a keyed hash that's replaced every hour, for rate limiting.</td><td>Anything after the #: addresses, amounts, memos, labels, codes, transaction IDs.</td></tr>
+          <tr><th scope="row">The hosting provider</th><td>Standard request logs: time, path, IP address and browser.</td><td>Payment details. They are never sent.</td></tr>
+          <tr><th scope="row">Blockchair <span class="opt">only while tracking</span></th><td>Your IP and the one transaction ID being checked.</td><td>Amounts, addresses, memos, or which request it belongs to.</td></tr>
+          <tr><th scope="row">Chat apps and link previews</th><td>A normal link: everything in it. A sealed link: only scrambled text.</td><td>A sealed link's contents, unless they also get the code.</td></tr>
+          <tr><th scope="row">Browser history and sync</th><td>The same as chat apps: readable for normal links, scrambled for sealed ones.</td><td>A sealed link's contents.</td></tr>
+          <tr><th scope="row">The Zcash blockchain <span class="opt">everyone</span></th><td>That a shielded transaction happened, its fee and when it was mined.</td><td>Sender, recipient, amount and memo.</td></tr>
+          <tr><th scope="row">The payer's and recipient's wallets</th><td>Their own side of the payment.</td><td>Nothing else from zkSEND.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+  <section class="page-sec">
+    <h2>How it's enforced</h2>
+    <ul class="dash-list">
+      <li><strong>Fragment-only data.</strong> Every request, tip jar, pay list and tracking link keeps its details after the #, which is never part of a web request.</li>
+      <li><strong>A locked-down page.</strong> A strict Content Security Policy lets the page contact exactly one outside address, Blockchair's API, and only when you track a payment. Scripts and styles are pinned by hash, fonts are embedded, and no third-party code runs.</li>
+      <li><strong>Nothing to leak.</strong> There's no database. The server prints one line when it starts and logs no requests.</li>
+      <li><strong>Bot protection without tracking.</strong> Rate limits use in-memory keyed hashes of IPs under a key that rotates hourly. The proof-of-work pass is a keyed hash too, stored nowhere.</li>
+      <li><strong>Sealed links.</strong> Encrypted in your browser with AES-256-GCM, using a key stretched from the code with PBKDF2-SHA256: 200,000 rounds for generated codes, 600,000 for codes you choose. Any change to the link makes it refuse to open. The code never leaves your device.</li>
+      <li><strong>Checked payment links.</strong> Addresses are checksum-verified, and every payment link follows ZIP 321 and is tested against the reference parser from librustzcash.</li>
+      <li><strong>Open source.</strong> The full source is public, so anyone can check exactly what runs.</li>
+    </ul>
+  </section>
+  <section class="page-sec">
+    <h2>What zkSEND can't protect against</h2>
+    <ul class="dash-list">
+      <li><strong>A compromised device.</strong> Malware or a malicious browser extension can read any page you open.</li>
+      <li><strong>Fake links.</strong> Anyone can make a zkSEND link. Before paying, confirm with the person asking that the address starts and ends the way the pay page shows.</li>
+      <li><strong>The site itself.</strong> Like any web app, you trust the code the server delivers each time you load it. The source is public, and the page's scripts are pinned by hash.</li>
+      <li><strong>Guessable codes.</strong> Someone holding a sealed link can try codes offline. The generated 12-character code is out of reach; a short code you choose, especially a word or a date, is not.</li>
+      <li><strong>Network observers.</strong> Your network can see that you visited zksend.net, and Blockchair sees your IP with a transaction ID while you track. Use Tor if that matters.</li>
+      <li><strong>Your own patterns.</strong> Reusing one address, posting links publicly, or paying from a wallet you also use personally can connect payments to you.</li>
+    </ul>
+  </section>
+  <section class="page-sec">
+    <h2>Report a problem</h2>
+    <p>Found a way zkSEND leaks? Send a DM to <a href="https://x.com/404snark_" target="_blank" rel="noopener noreferrer">@404snark_</a> on X.</p>
+  </section>
+</section>
+
+<section id="page-terms" class="page" hidden>
+  <header class="page-head">
+    <p class="kicker">terms</p>
+    <h1>Terms of use</h1>
+    <p class="page-lede">zkSEND is a free tool for making Zcash payment links.</p>
+  </header>
+  <section class="page-sec">
+    <h2>What zkSEND is</h2>
+    <p>zkSEND builds payment links in your browser. It never holds keys or funds, and it isn't a party, escrow or broker to any payment.</p>
+  </section>
+  <section class="page-sec">
+    <h2>Payments are final</h2>
+    <p>A confirmed Zcash transaction can't be reversed. Check addresses and amounts before you send. zkSEND can't recover, refund or cancel a payment.</p>
+  </section>
+  <section class="page-sec">
+    <h2>No warranty</h2>
+    <p>The site is provided as-is, with no uptime promise. If it goes offline, nothing you own is affected, because your funds and keys never leave your wallet.</p>
+  </section>
+  <section class="page-sec">
+    <h2>Privacy</h2>
+    <p>zkSEND stores no data about you or your payments. See the <a href="/security">security page</a> for exactly who can see what.</p>
+  </section>
+</section>
+
 <section id="pay" hidden data-mode="request">
   <p class="kicker" id="p-kicker">payment request</p>
+  <p class="sealed-badge" id="p-sealed" hidden><span aria-hidden="true">◆</span> sealed link, opened with its code</p>
   <h1 class="title" id="p-title"></h1>
   <p class="amount"><span id="p-amount"></span><span class="unit" id="p-unit">ZEC</span></p>
   <p class="expires" id="p-expires" hidden></p>
@@ -289,6 +477,7 @@
 <!-- ================= pay: tip jar ================= -->
 <section id="tip" hidden>
   <p class="kicker">tip jar</p>
+  <p class="sealed-badge" id="tp-sealed" hidden><span aria-hidden="true">◆</span> sealed link, opened with its code</p>
   <h1 class="title" id="tp-title"></h1>
   <p class="official" id="tp-official" hidden><span aria-hidden="true">✓</span> the official zkSEND tip jar</p>
   <p class="amount"><span id="tp-amount"></span><span class="unit" id="tp-unit">ZEC</span></p>
@@ -341,6 +530,7 @@
 <!-- ================= pay: many, and its tracking view ================= -->
 <section id="batch" hidden data-mode="request">
   <p class="kicker" id="bp-kicker">pay list</p>
+  <p class="sealed-badge" id="bp-sealed" hidden><span aria-hidden="true">◆</span> sealed link, opened with its code</p>
   <h1 class="title" id="bp-title"></h1>
   <p class="amount"><span id="bp-total"></span><span class="unit">ZEC total</span></p>
   <p class="sub" id="bp-count"></p>
@@ -359,6 +549,7 @@
     <div class="share">
       <p class="label">give each person their own tracking link</p>
       <p class="hint">Each link shows only that person's payment. Don't share this page; it has the whole list.</p>
+      <p class="hint" id="bt-sealed-note" hidden>This list is sealed, so each person's link is sealed too, with its own code. Send each person their link and their code.</p>
       <ol class="track-links" id="bt-links"></ol>
     </div>
     <dl class="fields">
@@ -397,6 +588,20 @@
   </div>
 </section>
 
+<section id="sealed" hidden>
+  <div class="box unlock">
+    <p class="kicker">sealed link</p>
+    <h1>enter the code to open this link</h1>
+    <p class="hint">The payment details are encrypted inside this link. Whoever sent it should have given you a code separately. Everything is decrypted on this device; the code never leaves it.</p>
+    <form id="unlock-form" novalidate>
+      <label for="unlock-code">unlock code</label>
+      <input id="unlock-code" class="code-input" spellcheck="false" autocomplete="off" autocapitalize="characters" maxlength="19" placeholder="XXXX-XXXX-XXXX">
+      <p class="error" id="unlock-error" role="alert"></p>
+      <button class="act solid wide" type="submit" id="unlock-btn"><span aria-hidden="true">◆</span>unlock</button>
+    </form>
+  </div>
+</section>
+
 <section id="expired" hidden>
   <div class="box">
     <h1>this request expired</h1>
@@ -421,9 +626,18 @@
   <a class="act solid" id="devtip-link"><span aria-hidden="true">♥</span>tip the dev</a>
 </aside>
 <footer class="foot">
-  <span>zkSEND</span>
-  <a href="#terms">terms</a>
-  <span>no accounts. no analytics. no fees. no logs kept by this app.</span>
+  <div class="foot-top">
+    <span class="foot-mark">zkSEND</span>
+    <nav class="foot-links" aria-label="Footer">
+      <a href="/">home</a>
+      <a href="/guide">guide</a>
+      <a href="/faq">faq</a>
+      <a href="/security">security</a>
+      <a href="/terms">terms</a>
+      <a href="/" id="foot-tip">tip the dev</a>
+    </nav>
+  </div>
+  <span class="foot-note">no accounts. no analytics. no fees. no logs kept by this app.</span>
   <a class="credit" href="https://x.com/404snark_" target="_blank" rel="noopener noreferrer">created by <img class="pfp" src="data:image/png;base64,__PFP__" width="26" height="26" alt=""><strong>404snark_</strong></a>
 </footer>
 </div>
