@@ -75,7 +75,8 @@ The browser tests need Python with `playwright`, `zxing-cpp`, `zcash-uri` and `c
 
 ```bash
 python3 test/e2e.py && python3 test/e2e_track.py && python3 test/e2e_wallets.py && python3 test/e2e_sealed.py
-python3 test/responsive.py   # every page at 17 screen sizes, 320px to 2560px
+python3 test/responsive.py        # every page at 17 screen sizes, 320px to 2560px
+python3 test/desktop_balance.py   # desktop: everything centered and aligned at 1060-1920px
 ```
 
 Edit `template.html`, `style.css` and `app.js`, not `dist/`. The build regenerates the CSP hashes,

@@ -481,3 +481,5 @@ html { font-size: clamp(1rem, 0.9rem + 0.32vw, 1.35rem); }
 /* Gentler growth on laptops and desktops; phones stay at 16px. */
 html { font-size: clamp(1rem, 0.9rem + 0.24vw, 1.3rem); }
 .page-head h1 { font-size: clamp(2.6rem, 6.4vw, 4rem); }
+/* The unlock card is narrower than the column on purpose (a focused dialog), so center it. */
+.unlock { margin-inline: auto; }
